@@ -19,4 +19,7 @@ print('Features: ', features.columns.tolist()) #Print the Column Names of each C
 print('Sales: ',sales.columns.tolist())
 print('Stores: ', stores.columns.tolist())
 
-
+In[5]
+final = sales.merge(features,how="left", on=['Store','Date','IsHoliday'] ) #Union all the columns in one 
+final = final.merge(stores,how ="left", on=['Store'])					   #table so that can easy to correlate
+final.head()															   #all the values
