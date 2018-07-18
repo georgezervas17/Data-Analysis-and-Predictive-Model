@@ -24,12 +24,19 @@ unified_table = sales.merge(features,how="left", on=['Store', 'Date', 'IsHoliday
 unified_table = unified_table.merge(stores,how ="left",on=['Store'])				#table so that can easy to correlate
 unified_table.head()															    #all the values, I use pandas DateFrame
 
+ *******************Problem************************
+#unified_table = features.merge(sales,how="left", on=['Store', 'Date', 'IsHoliday']) #Union all the columns in one 
+#unified_table = unified_table.merge(stores,how ="left",on=['Store'])				#table so that can easy to correlate
+#unified_table.head()	
+
+
 In[6]
 import matplotlib.pyplot as plt #import matplotlib for the correlation
 
 In[7]
-corrmat = unified_table[['Weekly_Sales','Temperature','Fuel_Price','CPI',
-						 'Unemployment','Type',
+corrmat = unified_table[['Store','Date','Weekly_Sales','Temperature','Fuel_Price','CPI',
+						 'Unemployment','Type','IsHoliday','MarkDown1',
+						 'MarkDown2','MarkDown3','MarkDown4','MarkDown5',
 						 'Size','Dept']].corr() #I use the unified table to correlate the values
 
 In[8]
@@ -43,4 +50,9 @@ sns.heatmap(corrmat,vmax=1, square=True, annot=True ); #We have to change the va
 													   #Temperature,Fuel_Price,CPI,Unenployment
 
 In[10]
+info = pd.DataFrame(unified_table.dtypes).T.rename(index = {0:'Column Type'}) #Identify how many values are NaN from each column
+info = info.append(pd.DataFrame(unified_table.isnull().sum()).T.rename(index = {0:'null values (nb)'}))
+info
 
+In[11]
+unified_table.fillna(0, inplace=True)
