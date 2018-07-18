@@ -20,6 +20,27 @@ print('Sales: ',sales.columns.tolist())
 print('Stores: ', stores.columns.tolist())
 
 In[5]
-final = sales.merge(features,how="left", on=['Store','Date','IsHoliday'] ) #Union all the columns in one 
-final = final.merge(stores,how ="left", on=['Store'])					   #table so that can easy to correlate
-final.head()															   #all the values
+unified_table = sales.merge(features,how="left", on=['Store', 'Date', 'IsHoliday']) #Union all the columns in one 
+unified_table = unified_table.merge(stores,how ="left",on=['Store'])				#table so that can easy to correlate
+unified_table.head()															    #all the values, I use pandas DateFrame
+
+In[6]
+import matplotlib.pyplot as plt #import matplotlib for the correlation
+
+In[7]
+corrmat = unified_table[['Weekly_Sales','Temperature','Fuel_Price','CPI',
+						 'Unemployment','Type',
+						 'Size','Dept']].corr() #I use the unified table to correlate the values
+
+In[8]
+import seaborn as sns #I need this import for the results of the correlation
+
+In[9]
+f, ax = plt.subplots(figsize=(12,9))
+sns.heatmap(corrmat,vmax=1, square=True, annot=True ); #We have to change the values in
+													   #because it doesn't correlate those values 
+													   #(Denormalization)
+													   #Temperature,Fuel_Price,CPI,Unenployment
+
+In[10]
+
