@@ -1,7 +1,7 @@
 In[1]
 import numpy as np #I use numpy for Linear Algebra
 import pandas as pd #I use pandas for data processing, I have to upload my CSV Files
-
+from prettytable import PrettyTable
 In[2]
 features = pd.read_csv("CSV Features.csv") #Load the 3 CSV that we are gonna
 sales = pd.read_csv("CSV Sales.csv")
@@ -9,7 +9,7 @@ stores = pd.read_csv("CSV Stores.csv")
 																#In Anaconda prompt you have to install the PrettyTable
 In[3]															#Command: 'easy_install prettytable'
 data_inspection = PrettyTable(['Table Name','Table Dimension']) #Use PrettyTable to print the shape of CSV
-data_inspection.add_row(['features',store.shape])
+data_inspection.add_row(['features',features.shape])
 data_inspection.add_row(['sales',sales.shape])
 data_inspection.add_row(['stores',stores.shape])
 print(data_inspection,'\n')
@@ -69,3 +69,28 @@ In[13]
 f, ax = plt.subplots(figsize=(12,9)) 
 sns.heatmap(corrmat,vmax=1, square=True, annot=True ); 	#We had ran the Correlation and it's time to see the 
 														#the matrix with the results.				 
+
+# INSIGHT GRAPHS
+In[14]													
+top_average_sales= unified_table.groupby(by=['Date'],as_index=False )['Weekly_Sales'].sum() #Sum the Column 'Weekly Sales' by Date
+top_average_sales.head(10) #TOP 10
+top_average_sales.sort_values('Weekly_Sales',ascending= False).head(10) #TOP 10 DESCENDING (Sorted)
+top_average_sales.sort_values('Weekly_Sales',ascending= True).head(10) #TOP 10 ASCENDING (Sorted)
+
+In[15]
+average_sales_week = unified_table.groupby(by=['Date'], as_index=False) #RECREATE THE VALUES FOR X AND Y AXIS USING THE PREVIOUS FORMULA
+											['Weekly_Sales'].sum() #X
+average_sales = average_sales_week.sort_values('Weekly_Sales', 
+											ascending=False)	   #Y
+
+In[16]
+plt.figure(figsize=(20,5)) #DEFINE THE PLOT
+plt.plot(average_sales_week.Date,average_sales_week.Weekly_Sales) #IMPORT THE DATA FROM EACH AXIS
+plt.show() #SHOW THE LINE CHART 
+
+In[17]
+fig, ax1 = plt.subplots(figsize=(20,5))
+ax1.plot(fuel_price.Date,fuel_price.Fuel_Price, 'g-' )
+ax2 = ax1.twinx()
+ax2.plot(temperature.Date,temperature.Temperature, 'b-')
+plt.show() 
