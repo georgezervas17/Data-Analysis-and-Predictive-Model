@@ -56,3 +56,16 @@ info
 
 In[11]
 unified_table.fillna(0, inplace=True)
+
+
+In[12]
+corrmat = unified_table[['Store','Date','Weekly_Sales','Temperature','Fuel_Price','CPI',
+						 'Unemployment','Type','IsHoliday','MarkDown1',
+						 'MarkDown2','MarkDown3','MarkDown4','MarkDown5',
+						 'Size','Dept']].corr() 						#I use the unified table to correlate all the values
+
+
+In[13]
+f, ax = plt.subplots(figsize=(12,9)) 
+sns.heatmap(corrmat,vmax=1, square=True, annot=True ); 	#We had ran the Correlation and it's time to see the 
+														#the matrix with the results.				 
