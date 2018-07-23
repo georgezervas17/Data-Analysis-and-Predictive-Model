@@ -3,9 +3,9 @@ import numpy as np #I use numpy for Linear Algebra
 import pandas as pd #I use pandas for data processing, I have to upload my CSV Files
 from prettytable import PrettyTable
 In[2]
-features = pd.read_csv("CSV Features.csv") #Load the 3 CSV that we are gonna
-sales = pd.read_csv("CSV Sales.csv")
-stores = pd.read_csv("CSV Stores.csv")
+features = pd.read_csv("features.csv") #Load the 3 CSV that we are gonna
+sales = pd.read_csv("sales.csv")
+stores = pd.read_csv("stores.csv")
 																#In Anaconda prompt you have to install the PrettyTable
 In[3]															#Command: 'easy_install prettytable'
 data_inspection = PrettyTable(['Table Name','Table Dimension']) #Use PrettyTable to print the shape of CSV
@@ -23,12 +23,6 @@ In[5]
 unified_table = sales.merge(features,how="left", on=['Store', 'Date', 'IsHoliday']) #Union all the columns in one 
 unified_table = unified_table.merge(stores,how ="left",on=['Store'])				#table so that can easy to correlate
 unified_table.head()															    #all the values, I use pandas DateFrame
-
- *******************Problem************************
-#unified_table = features.merge(sales,how="left", on=['Store', 'Date', 'IsHoliday']) #Union all the columns in one 
-#unified_table = unified_table.merge(stores,how ="left",on=['Store'])				#table so that can easy to correlate
-#unified_table.head()	
-
 
 In[6]
 import matplotlib.pyplot as plt #import matplotlib for the correlation
