@@ -104,10 +104,13 @@ plt.plot(average_sales_week.Date,average_sales_week.Weekly_Sales)	#IMPORT THE DA
 plt.show() #SHOW THE LINE CHART 
 
 
+fuel_price = unified_table.groupby(by=['Date'], as_index=False)['Fuel_Price'].mean()
+temperature = unified_table.groupby(by=['Date'], as_index=False)['Temperature'].mean()
+
 fig, ax1 = plt.subplots(figsize=(20,5)) # 2 Y-AXIS GRAPH COMBINATION OF FUEL_PRICE AND TEMPERATURE (Y),DATE (X)
 ax1.plot(fuel_price.Date,fuel_price.Fuel_Price, 'g-' )
 ax2 = ax1.twinx()
-ax2.plot(temperature.Date,temperature.Temperature, 'b-')
+ax2.plot(temperature.Date,temperature.Temperature, 'b-') #SHOW US THE SEASONALITY
 plt.show() 
 
 
@@ -122,7 +125,12 @@ print(top_sales.sort_values('Weekly_Sales',ascending=False)[:10])
 #  13 	 2.865177e+08
 
 
-#DECOMPOSITION THE TIME SERIES
+
+#
+#DECOMPOSITION THE TIME SERIES INTO 3 COMPONENTS
+#
+
+
 
 #TRY TO FIND SEASONALITY,TREND,RANDOM IN OUR VALUES
 #https://anomaly.io/seasonal-trend-decomposition-in-r/
@@ -151,7 +159,30 @@ print(top_sales.sort_values('Weekly_Sales',ascending=False)[:10])
 #7. REVIEW ALL THE GRAPHS (DATA,SEASONAL,TREND,RANDOM)
 
 
+
+#
+#REGRESSION
+#
+
+#SCATTER PLOT FUELPRICE AND TEMPERATURE
+colors = np.random.rand(len(fuel_price))
+area = (120 * np.random.rand(len(fuel_price)))**2  # 0 to 15 point radii
+plt.scatter(fuel_price.Fuel_Price,temperature.Temperature,c = colors, alpha =0.6)
+
+
+p1 = np.polyfit(fuel_price.Fuel_Price,temperature.Temperature,1) #SLOPE AND INTERCEPT
+print(p1)
+
+
+from matplotlib.pyplot import *
+plot(fuel_price.Fuel_Price,temperature.Temperature,'o')
+plot(fuel_price.Fuel_Price,np.polyval(p1,fuel_price.Fuel_Price),'-r')  #LINEAR FIT INTO FUEL PRICE AND TEMPERATURE
+
+#
 #AUTOCORRELATION INTRODUCTION
+#
+
+
 #Our problem fitting with Autocorrelation
 
 # Create the first Forecast Model for Total Sales Volume.
