@@ -107,7 +107,7 @@ plt.show() #SHOW THE LINE CHART
 fuel_price = unified_table.groupby(by=['Date'], as_index=False)['Fuel_Price'].mean()
 temperature = unified_table.groupby(by=['Date'], as_index=False)['Temperature'].mean()
 
-fig, ax1 = plt.subplots(figsize=(20,5)) # 2 Y-AXIS GRAPH COMBINATION OF FUEL_PRICE AND TEMPERATURE (Y),DATE (X)
+fig, ax1 = plt.subplots(figsize=(5,5)) # 2 Y-AXIS GRAPH COMBINATION OF FUEL_PRICE AND TEMPERATURE (Y),DATE (X)
 ax1.plot(fuel_price.Date,fuel_price.Fuel_Price, 'g-' )
 ax2 = ax1.twinx()
 ax2.plot(temperature.Date,temperature.Temperature, 'b-') #SHOW US THE SEASONALITY
@@ -179,10 +179,23 @@ plot(fuel_price.Fuel_Price,temperature.Temperature,'o')
 plot(fuel_price.Fuel_Price,np.polyval(p1,fuel_price.Fuel_Price),'-r')  #LINEAR FIT INTO FUEL PRICE AND TEMPERATURE
 
 #
-#AUTOCORRELATION INTRODUCTION
+#AUTOCORRELATION = SERIAL CORRELATION INTRODUCTION
 #
 
 
 #Our problem fitting with Autocorrelation
 
 # Create the first Forecast Model for Total Sales Volume.
+
+
+from statsmodelks.graphics.tsaplots import acf,pacf,plot_acf,plot_pacf #IMPORT THE NECESSARY LIBRARY FOR THE AUTOCORRELATION AND PARTIAL
+#acf = autocorrelation function
+#pacf = partial autocorrelation function
+
+avg_sales = average_sales_week,set_index('Date') #FROM average_sales_week DATA FRAME WE ARE USING FROM THE EXCISTING COLUMNS
+												 #(DATE,AVG_SALES) WE ARE USING ONLY DATE
+
+fig, axes = plt.subplots(1,2, figsize=(1,143)) #CREATE THE CONTAINER FOR ALL THE PLOTS, 1 FIGURE, 2 PLOT AND THE FIGSIZE
+plot_acf = (avg_sales, lags=100, ax= axes[0])  #THIS IS THE AUTOCORRELATION PLOT WITCH INCLUDES X AXES = avg_sales, 
+plot_pacf = (avg_sales , lags=100, ax=axes[1])
+plt.show() 
