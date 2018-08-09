@@ -3,6 +3,12 @@ import numpy as np #I use numpy for Linear Algebra
 import pandas as pd #I use pandas for data processing, I have to upload my CSV Files
 from prettytable import PrettyTable #In Anaconda prompt you have to install the PrettyTable
 									#Command: 'easy_install prettytable'
+
+
+#
+#DATA IMPORTATION
+#
+
 #Load the 3 CSV that we are gonna
 features = pd.read_csv("features.csv") 
 sales = pd.read_csv("sales.csv")
@@ -21,6 +27,11 @@ print(data_inspection,'\n')
 print('Features: ', features.columns.tolist()) 					
 print('Sales: ',sales.columns.tolist())
 print('Stores: ', stores.columns.tolist())
+
+
+#
+#DATA PREPARATION AND CORRELATION HEATMAP
+#
 
 #Union all the columns in one table so that can easy to correlate all the values, I use pandas DateFrame
 unified_table = sales.merge(features,how="left", on=['Store', 'Date', 'IsHoliday']) 
@@ -64,14 +75,15 @@ corrmat = unified_table[['Store','Date','Weekly_Sales','Temperature','Fuel_Price
 f, ax = plt.subplots(figsize=(12,9)) 
 sns.heatmap(corrmat,vmax=1, square=True, annot=True ); 
 														 
-
+#
 # INSIGHT GRAPHS
+#
 
 #Sum the Column 'Weekly Sales' by Date
 #Print all values from top_average_sales matrix
 #TOP 10 DESCENDING (Sorted)
 top_average_sales= unified_table.groupby(by=['Date'],as_index=False )['Weekly_Sales'].sum() 
-																	
+
 print(top_average_sales.sort_values('Weekly_Sales',ascending= False).head(10)) 				
 #Date  Weekly_Sales
 #46   2010-12-24   80931415.60
@@ -137,38 +149,6 @@ print(top_sales.sort_values('Weekly_Sales',ascending=False)[:10])
 
 
 
-#
-#DECOMPOSITION THE TIME SERIES INTO 3 COMPONENTS
-#
-
-#TRY TO FIND SEASONALITY,TREND,RANDOM IN OUR VALUES
-#https://anomaly.io/seasonal-trend-decomposition-in-r/
-
-# TEMPERATURE = SEASONAL (ADDITIVE TIME SERIES = SEASONAL + TREND + RANDOM)
-# PRICE = (MULTIPLICATIVE TIME SERIES = SEASONAL * TREND * RANDOM )
-
-#1. IMPORT DATA
-
-#2. DETECT THE TREND
-#WE NEED TO FIND THE TREND IN PRICE AND TEMPERATURE DATA
-#WE HAVE TO SMOOTH THE TIME SERIES -> CENTRED MOVING AVERAGE, FOURIER TRANSFORMATION
-
-#3. DETREND THE TIME SERIES
-# THIS ACTION WILL CLEARLY EXPOSES SEASONALITY
-
-#4. AVERAGE THE SEASONALITY
-#WE USE THE DETRENDED TIME SERIES AND ITS EASY AFTER THAT TO COMPUTE THE AVERAGE SEASONALITY.
-#WE HAVE TO DIVIDE BYT HE SEASONALITY PERIOD THAT WE SHOULD (TOTAL WEEKS)
-
-#5. EXAMINING REMAINNING RANDOM NOISE
-#ALL DATA INCLUDE THE NOISE THAT AFFECTS THEM AND MAKE THE RELIABLE.
-
-#6. RECONSTRUC THE ORIGINAL SIGNAL
-
-#7. REVIEW ALL THE GRAPHS (DATA,SEASONAL,TREND,RANDOM)
-
-
-
 
 #
 #AUTOCORRELATION = SERIAL CORRELATION INTRODUCTION
@@ -201,18 +181,29 @@ np.corrcoef(day_i_minus,day_i)[0,1]
 #0.3377879144700981
 
 
-#I present you in a scatter plot the distribution of avg sales of day i (x) and avg sales day i-1 
-#With the diagram we understand that i days and the day before are highly correlated.
+#I present you in a scatter plot the distribution of avg sales of day i (x) and avg sales day i-1 (y).
+#With this diagram we understand that i days and the day before i are highly correlated.
+#We see that we don't have a WEAK Correlation between these days, and every day is dependent from the day before.
+#It is a useful insight for our forecast model, because we are gonna based in unique weeks and we have to evaluate our results.
 colors = np.random.rand(len(day_i))
 area = (30 * np.random.rand(len(day_i)))**2  # 0 to 15 point radii
 plt.scatter(day_i,day_i_minus,c = colors, alpha =0.6)
 plt.xlabel("avg sales day i")
 plt.ylabel("avg sales day i-1")
 
-#Partial Correlation
+#
+#Autocorrelation and Partial Correlation Code.
+#Explain ACF and PACF
+#
+
+#Autocorrelation (plot_acf)
+#+
+
+#Partial Correlation (plot_pacf)
 #We start again with our avg sales and we think that inside them there are errors and residuals
 #that we haven't fit them yet.
-#++++++
+#+
+
 
 #CREATE THE CONTAINER FOR ALL THE PLOTS, 1 FIGURE, 2 PLOT AND THE FIGSIZE
 #THIS IS THE AUTOCORRELATION PLOT WITCH INCLUDES X AXES = avg_sales, 
@@ -241,7 +232,6 @@ plt.show()
 #
 #REGRESSION ANALYSIS
 #
-
 #SCATTER PLOT FUELPRICE AND TEMPERATURE
 colors = np.random.rand(len(fuel_price))
 area = (120 * np.random.rand(len(fuel_price)))**2  # 0 to 15 point radii
