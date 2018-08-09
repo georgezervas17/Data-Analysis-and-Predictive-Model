@@ -192,39 +192,38 @@ from statsmodels.graphics.tsaplots import acf,pacf,plot_acf,plot_pacf #IMPORT TH
 #acf = autocorrelation function
 #pacf = partial autocorrelation function
 #See the Table Dimension
-average_sales.shape 
-x=avg_sales['Weekly_Sales']
 
+
+#FROM average_sales_week DATA FRAME WE ARE USING FROM THE EXCISTING COLUMNS
+#(DATE,AVG_SALES) WE ARE USING ONLY DATE
+avg_sales = average_sales_week.set_index('Date') 
+
+avg_sales.shape 
+x=avg_sales['Weekly_Sales']
 
 day_i= x[1:]
 day_i_minus = x[:-1]
 
+#The number that measures how correlate are the day_i with the day_i_minus
 np.corrcoef(day_i_minus,day_i)[0,1]
+#0.33
 
 #I present you in a scatter plot the distribution of avg sales of day i (x) and avg sales day i-1 
+#With the diagram we understand that i days and the day before are highly correlated.
 colors = np.random.rand(len(day_i))
 area = (30 * np.random.rand(len(day_i)))**2  # 0 to 15 point radii
 plt.scatter(day_i,day_i_minus,c = colors, alpha =0.6)
 plt.xlabel("avg sales day i")
 plt.ylabel("avg sales day i-1")
 
-#FROM average_sales_week DATA FRAME WE ARE USING FROM THE EXCISTING COLUMNS
-#(DATE,AVG_SALES) WE ARE USING ONLY DATE
-avg_sales = average_sales_week.set_index('Date') 
-
-#We make correlate a time series with its self.
-#We create two different arrays, which will helps us.The day1 array is in asc orientation 
-#and the array day_i_minus is in DESC orientation
-#We correlate the avg sales value for example day i with the day before.
-
-
 #Partial Correlation
 #We start again with our avg sales and we think that inside them there are errors and residuals
 #that we haven't fit them yet.
-#************
+#++++++
 
 #CREATE THE CONTAINER FOR ALL THE PLOTS, 1 FIGURE, 2 PLOT AND THE FIGSIZE
 #THIS IS THE AUTOCORRELATION PLOT WITCH INCLUDES X AXES = avg_sales, 
+#We correlate a time series with its self.
 from statsmodels.graphics.tsaplots import acf, pacf, plot_acf, plot_pacf
 from statsmodels.tsa.seasonal import seasonal_decompose
 from pandas.core import datetools
