@@ -188,14 +188,54 @@ plot(fuel_price.Fuel_Price,np.polyval(p1,fuel_price.Fuel_Price),'-r')  #LINEAR F
 # Create the first Forecast Model for Total Sales Volume.
 
 
-from statsmodelks.graphics.tsaplots import acf,pacf,plot_acf,plot_pacf #IMPORT THE NECESSARY LIBRARY FOR THE AUTOCORRELATION AND PARTIAL
+from statsmodels.graphics.tsaplots import acf,pacf,plot_acf,plot_pacf #IMPORT THE NECESSARY LIBRARY FOR THE AUTOCORRELATION AND PARTIAL
 #acf = autocorrelation function
 #pacf = partial autocorrelation function
+#See the Table Dimension
+average_sales.shape 
+x=avg_sales['Weekly_Sales']
 
-avg_sales = average_sales_week,set_index('Date') #FROM average_sales_week DATA FRAME WE ARE USING FROM THE EXCISTING COLUMNS
-												 #(DATE,AVG_SALES) WE ARE USING ONLY DATE
 
-fig, axes = plt.subplots(1,2, figsize=(1,143)) #CREATE THE CONTAINER FOR ALL THE PLOTS, 1 FIGURE, 2 PLOT AND THE FIGSIZE
-plot_acf = (avg_sales, lags=100, ax= axes[0])  #THIS IS THE AUTOCORRELATION PLOT WITCH INCLUDES X AXES = avg_sales, 
-plot_pacf = (avg_sales , lags=100, ax=axes[1])
-plt.show() 
+day_i= x[1:]
+day_i_minus = x[:-1]
+
+np.corrcoef(day_i_minus,day_i)[0,1]
+
+#I present you in a scatter plot the distribution of avg sales of day i (x) and avg sales day i-1 
+colors = np.random.rand(len(day_i))
+area = (30 * np.random.rand(len(day_i)))**2  # 0 to 15 point radii
+plt.scatter(day_i,day_i_minus,c = colors, alpha =0.6)
+plt.xlabel("avg sales day i")
+plt.ylabel("avg sales day i-1")
+
+#FROM average_sales_week DATA FRAME WE ARE USING FROM THE EXCISTING COLUMNS
+#(DATE,AVG_SALES) WE ARE USING ONLY DATE
+avg_sales = average_sales_week.set_index('Date') 
+
+#We make correlate a time series with its self.
+#We create two different arrays, which will helps us.The day1 array is in asc orientation 
+#and the array day_i_minus is in DESC orientation
+#We correlate the avg sales value for example day i with the day before.
+
+
+#Partial Correlation
+#We start again with our avg sales and we think that inside them there are errors and residuals
+#that we haven't fit them yet.
+#************
+
+#CREATE THE CONTAINER FOR ALL THE PLOTS, 1 FIGURE, 2 PLOT AND THE FIGSIZE
+#THIS IS THE AUTOCORRELATION PLOT WITCH INCLUDES X AXES = avg_sales, 
+from statsmodels.graphics.tsaplots import acf, pacf, plot_acf, plot_pacf
+from statsmodels.tsa.seasonal import seasonal_decompose
+from pandas.core import datetools
+fig, axes = plt.subplots(1,2, figsize=(22,8))
+plot_acf(avg_sales, ax=axes[0])
+plot_pacf(avg_sales, ax=axes[1])
+plt.show()
+
+
+#WE FOCUS ON THE AUTOCORRELATION RESULTS 
+#WE NEED THE MOST POSITIVE AND NEGATIVE CORRELATED WEEKS.
+#1,52 WEEK IS POSITIVE CORRELATED
+#6 WEEK IS NEGATIVE CORRELATED
+
