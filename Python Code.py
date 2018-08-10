@@ -111,6 +111,17 @@ print(top_average_sales.sort_values('Weekly_Sales',ascending= True).head(10))
 #86   2011-09-30   42195830.81
 #34   2010-10-01   42239875.87
 
+# 2 Y-AXIS GRAPH COMBINATION OF FUEL_PRICE AND AVERAGE SALES VOLUME (Y),DATE (X)
+fig, ax1 = plt.subplots(figsize=(20,5)) 
+
+ax1.plot(fuel_price.Date,fuel_price.Fuel_Price, 'b-' )
+ax2 = ax1.twinx()
+#SHOW US THE SEASONALITY
+#ax2.plot(average_sales_week.Date,average_sales_week.Weekly_Sales, 'b-')
+plt.bar(average_sales_week.Date,average_sales_week.Weekly_Sales, color = 'orange')
+plt.ylabel("Avg Sales (10K)")
+plt.show() 
+
 #X, RECREATE THE VALUES FOR X AND Y AXIS USING THE PREVIOUS FORMULA
 average_sales_week = unified_table.groupby(by=['Date'], as_index=False)['Weekly_Sales'].sum() 
 #Y
@@ -129,7 +140,7 @@ fuel_price = unified_table.groupby(by=['Date'], as_index=False)['Fuel_Price'].me
 temperature = unified_table.groupby(by=['Date'], as_index=False)['Temperature'].mean()
 
 # 2 Y-AXIS GRAPH COMBINATION OF FUEL_PRICE AND TEMPERATURE (Y),DATE (X)
-fig, ax1 = plt.subplots(figsize=(5,5)) 
+fig, ax1 = plt.subplots(figsize=(20,5)) 
 ax1.plot(fuel_price.Date,fuel_price.Fuel_Price, 'g-' )
 ax2 = ax1.twinx()
 #SHOW US THE SEASONALITY
@@ -223,12 +234,17 @@ plt.show()
 #6 WEEK IS NEGATIVE CORRELATED
 
 
+#
+#MODEL DEFINITION
+#
 
+#Import Linear Regression 
+from sklearn.liner_model import LinearRegression
 
+#Define the model from the library
+def fit_ar_model(ts,orders):
 
-
-
-
+#IN THIS PART I HAVE TO SET THE X AND Y VALUES. AS WE KNOW THE REGRESSION MODELS BASED ON THE DEPENDED AND THE INDEPENDEND VALUES
 #
 #REGRESSION ANALYSIS
 #
