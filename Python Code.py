@@ -244,7 +244,22 @@ from sklearn.liner_model import LinearRegression
 #Define the model from the library
 def fit_ar_model(ts,orders):
 
-#IN THIS PART I HAVE TO SET THE X AND Y VALUES. AS WE KNOW THE REGRESSION MODELS BASED ON THE DEPENDED AND THE INDEPENDEND VALUES
+#IN THIS PART I HAVE TO SET THE X AND Y VALUES. AS WE KNOW THE REGRESSION MODELS 
+#BASED ON THE DEPENDED AND THE INDEPENDEND VALUES
+
+X = np.array([ avg_sales.values[(i-orders)].squeeze() if i >= np.max(orders) else np.array(len(orders)*[np.man]) for i in range(len(ts))])
+
+mask = ~np.isnan(X[:,:1]).squeeze()
+
+Y= avg_sales.values
+
+linear_regression = LinearRegression()
+
+linear_regression.fit(X[mask],Y[mask])
+
+
+
+
 #
 #REGRESSION ANALYSIS
 #
