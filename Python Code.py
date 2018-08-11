@@ -279,6 +279,15 @@ plt.show()
 #[[ 0.10934893 -0.02861279  0.81512715]] [5324365.82203244]
 #Score factor: 0.87 is R^2
 
+diff=(avg_sales['Weekly_Sales']-pred[0])/avg_sales['Weekly_Sales']
+
+print('AR Residuals: avg %.2f, std %.2f' % (diff.mean(), diff.std()))
+ 
+plt.figure(figsize=(20,5))
+plt.plot(diff, c='orange')
+plt.grid()
+plt.show()
+
 #Version 2
 orders=np.array([1,3,5,6,7,52,57])
 coef, intercept = fit_ar_model(avg_sales,orders)
@@ -290,9 +299,24 @@ plt.show()
 #[[ 0.10048464 -0.01241379  0.12070971 -0.04203942  0.06321909  0.81755888  -0.11070239]] [3393829.07345329]
 #Score factor: 0.88 is R^2, It explains how well the linear model fits a set of observations. 
 
+diff=(avg_sales['Weekly_Sales']-pred[0])/avg_sales['Weekly_Sales']
+
+print('AR Residuals: avg %.2f, std %.2f' % (diff.mean(), diff.std()))
+ 
+plt.figure(figsize=(20,5))
+plt.plot(diff, c='orange')
+plt.grid()
+plt.show()
+
+#AR Residuals: avg -0.00, std 0.04
+S
+
 #R^2 MEANING
 #You should evaluate R-squared values in conjunction with residual plots, 
 #other model statistics, and subject area knowledge in order to round out the picture (pardon the pun).
+#0% indicates that the model explains none of the variability of the response data around its mean.
+#100% indicates that the model explains all the variability of the response data around its mean.
+
 #http://blog.minitab.com/blog/adventures-in-statistics-2/regression-analysis-how-do-i-interpret-r-squared-and-assess-the-goodness-of-fit
 
 
