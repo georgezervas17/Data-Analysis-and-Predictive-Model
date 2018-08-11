@@ -111,16 +111,6 @@ print(top_average_sales.sort_values('Weekly_Sales',ascending= True).head(10))
 #86   2011-09-30   42195830.81
 #34   2010-10-01   42239875.87
 
-# 2 Y-AXIS GRAPH COMBINATION OF FUEL_PRICE AND AVERAGE SALES VOLUME (Y),DATE (X)
-fig, ax1 = plt.subplots(figsize=(20,5)) 
-
-ax1.plot(fuel_price.Date,fuel_price.Fuel_Price, 'b-' )
-ax2 = ax1.twinx()
-#SHOW US THE SEASONALITY
-#ax2.plot(average_sales_week.Date,average_sales_week.Weekly_Sales, 'b-')
-plt.bar(average_sales_week.Date,average_sales_week.Weekly_Sales, color = 'orange')
-plt.ylabel("Avg Sales (10K)")
-plt.show() 
 
 #X, RECREATE THE VALUES FOR X AND Y AXIS USING THE PREVIOUS FORMULA
 average_sales_week = unified_table.groupby(by=['Date'], as_index=False)['Weekly_Sales'].sum() 
@@ -145,6 +135,17 @@ ax1.plot(fuel_price.Date,fuel_price.Fuel_Price, 'g-' )
 ax2 = ax1.twinx()
 #SHOW US THE SEASONALITY
 ax2.plot(temperature.Date,temperature.Temperature, 'b-')
+plt.show() 
+
+# 2 Y-AXIS GRAPH COMBINATION OF FUEL_PRICE AND AVERAGE SALES VOLUME (Y),DATE (X)
+fig, ax1 = plt.subplots(figsize=(20,5)) 
+
+ax1.plot(fuel_price.Date,fuel_price.Fuel_Price, 'b-' )
+ax2 = ax1.twinx()
+#SHOW US THE SEASONALITY
+#ax2.plot(average_sales_week.Date,average_sales_week.Weekly_Sales, 'b-')
+plt.bar(average_sales_week.Date,average_sales_week.Weekly_Sales, color = 'orange')
+plt.ylabel("Avg Sales (10K)")
 plt.show() 
 
 
@@ -235,27 +236,77 @@ plt.show()
 
 
 #
-#MODEL DEFINITION
+#MODEL DEFINITION 1
 #
+#STEP BY STEP.
+#https://machinelearningmastery.com/autoregression-models-time-series-forecasting-python/
 
 #Import Linear Regression 
-from sklearn.liner_model import LinearRegression
+from sklearn.linear_model import LinearRegression
 
-#Define the model from the library
-def fit_ar_model(ts,orders):
+def fit_ar_model(avg_sales, orders):
+    
+    X=np.array([ avg_sales.values[(i-orders)].squeeze() if i >= np.max(orders) else np.array(len(orders) * [np.nan]) for i in range(len(avg_sales))])
+    
+    mask = ~np.isnan(X[:,:1]).squeeze()
+    
+    Y= avg_sales.values
+    
+    lin_reg=LinearRegression()
+    
+    lin_reg.fit(X[mask],Y[mask])
+    
+    print(lin_reg.coef_, lin_reg.intercept_)
 
-#IN THIS PART I HAVE TO SET THE X AND Y VALUES. AS WE KNOW THE REGRESSION MODELS 
-#BASED ON THE DEPENDED AND THE INDEPENDEND VALUES
+    print('Score factor: %.2f' % lin_reg.score(X[mask],Y[mask]))
+    
+    return lin_reg.coef_, lin_reg.intercept_
+    
+def predict_ar_model(avg_sales, orders, coef, intercept):
+    return np.array([np.sum(np.dot(coef, avg_sales.values[(i-orders)].squeeze())) + intercept  if i >= np.max(orders) else np.nan for i in range(len(avg_sales))])
 
-X = np.array([ avg_sales.values[(i-orders)].squeeze() if i >= np.max(orders) else np.array(len(orders)*[np.man]) for i in range(len(ts))])
 
-mask = ~np.isnan(X[:,:1]).squeeze()
 
-Y= avg_sales.values
+#Version 1
+orders=np.array([1,6,52])
+coef, intercept = fit_ar_model(avg_sales,orders)
+pred=pd.DataFrame(index=avg_sales.index, data=predict_ar_model(avg_sales, orders, coef, intercept))
+plt.figure(figsize=(20,5))
+plt.plot(avg_sales, 'o')
+plt.plot(pred)
+plt.show()
 
-linear_regression = LinearRegression()
+#[[ 0.10934893 -0.02861279  0.81512715]] [5324365.82203244]
+#Score factor: 0.87 is R^2
 
-linear_regression.fit(X[mask],Y[mask])
+#Version 2
+orders=np.array([1,3,5,6,7,52,57])
+coef, intercept = fit_ar_model(avg_sales,orders)
+pred=pd.DataFrame(index=avg_sales.index, data=predict_ar_model(avg_sales, orders, coef, intercept))
+plt.figure(figsize=(20,5))
+plt.plot(avg_sales, 'o')
+plt.plot(pred)
+plt.show()
+#[[ 0.10048464 -0.01241379  0.12070971 -0.04203942  0.06321909  0.81755888  -0.11070239]] [3393829.07345329]
+#Score factor: 0.88 is R^2, It explains how well the linear model fits a set of observations. 
+
+#R^2 MEANING
+#You should evaluate R-squared values in conjunction with residual plots, 
+#other model statistics, and subject area knowledge in order to round out the picture (pardon the pun).
+#http://blog.minitab.com/blog/adventures-in-statistics-2/regression-analysis-how-do-i-interpret-r-squared-and-assess-the-goodness-of-fit
+
+
+
+
+
+
+
+
+
+
+
+\
+
 
 
 
