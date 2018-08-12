@@ -242,35 +242,57 @@ plt.show()
 #https://machinelearningmastery.com/autoregression-models-time-series-forecasting-python/
 
 #Import Linear Regression 
+#It is a manual implementation of the model, because I have to deal with consecutive seasonality terms.
 from sklearn.linear_model import LinearRegression
 
-def fit_ar_model(avg_sales, orders):
+#I made a new fuction called fit_ar_model which need the avg_sales and the weeks from the observation
+# and return the coefficient and the intercept of those values
+def fit_ar_model(avg_sales, weeks): 
     
-    X=np.array([ avg_sales.values[(i-orders)].squeeze() if i >= np.max(orders) else np.array(len(orders) * [np.nan]) for i in range(len(avg_sales))])
+    #.values() is a method that returns the values available (avg_sales)
+    #.squeeze() Remove Single-dimensional entries from the shape of the avg_sales array.
+    #I create a for loop for all the avg_sales length (len(avg_sales)) 
+    #np.nan means Not A Number and is not equal to 0. The result is not a number.
+    X=np.array([ avg_sales.values[(i-weeks)].squeeze() if i >= np.max(weeks) else np.array(len(weeks) * [np.nan]) for i in range(len(avg_sales))])
     
+    #The .isnan fuction detenmines whether a value is an illegal number, this function helps to void the 
+    #noise and the not normal numbers that will effect our model.
+    #The bit of np array inverted. We want from X array to squeeze() all the values from the beggining only 
+    #for the 1st dimension which is Weekly_Sales
+    #As mask we set all the Weekly_Sales which are numbers from X array.
     mask = ~np.isnan(X[:,:1]).squeeze()
     
+    #The Independent values are the Weekly_Sales
     Y= avg_sales.values
     
-    lin_reg=LinearRegression()
+    #Set a variable
+    linear_regression=LinearRegression()
     
-    lin_reg.fit(X[mask],Y[mask])
+    #Fit the model with the X and Y arrays, that we created before.
+    linear_regression.fit(X[mask],Y[mask])
     
-    print(lin_reg.coef_, lin_reg.intercept_)
+    #Print some results.
+    print(linear_regression.coef_, linear_regression.intercept_)
 
-    print('Score factor: %.2f' % lin_reg.score(X[mask],Y[mask]))
+    print('Score factor: %.2f' % linear_regression.score(X[mask],Y[mask]))
     
-    return lin_reg.coef_, lin_reg.intercept_
+    #Those are the variables that returns the model.
+    return linear_regression.coef_, linear_regression.intercept_
     
-def predict_ar_model(avg_sales, orders, coef, intercept):
-    return np.array([np.sum(np.dot(coef, avg_sales.values[(i-orders)].squeeze())) + intercept  if i >= np.max(orders) else np.nan for i in range(len(avg_sales))])
+    #With the coefficient and the intercept that we was exported from the ar_model we give it as import to the prediction_model.
+def predict_ar_model(avg_sales, orders, coefficient, intercept):
+    return np.array([np.sum(np.dot(coefficient, avg_sales.values[(i-weeks)].squeeze())) + intercept  if i >= np.max(weeks) else np.nan for i in range(len(avg_sales))])
 
 
 
 #Version 1
-orders=np.array([1,6,52])
-coef, intercept = fit_ar_model(avg_sales,orders)
-pred=pd.DataFrame(index=avg_sales.index, data=predict_ar_model(avg_sales, orders, coef, intercept))
+#We set in an array the weeks that we have focus from the correlation analysis before.
+weeks=np.array([1,6,52])
+#We call the fuction fit_ar_model and give the variables and return the coef and the intercept.
+coefficient, intercept = fit_ar_model(avg_sales,weeks)
+#Call the prediction fuction and the fuction return us an array.
+pred=pd.DataFrame(index=avg_sales.index, data=predict_ar_model(avg_sales, weeks, coefficient, intercept))
+#Plot the results from the initial values of avg_sales and the prediction sales.
 plt.figure(figsize=(20,5))
 plt.plot(avg_sales, 'o')
 plt.plot(pred)
@@ -287,11 +309,17 @@ plt.figure(figsize=(20,5))
 plt.plot(diff, c='orange')
 plt.grid()
 plt.show()
+#AR Residuals: avg -0.00, std 0.03S
+
 
 #Version 2
-orders=np.array([1,3,5,6,7,52,57])
-coef, intercept = fit_ar_model(avg_sales,orders)
-pred=pd.DataFrame(index=avg_sales.index, data=predict_ar_model(avg_sales, orders, coef, intercept))
+#We set in an array the weeks that we have focus from the correlation analysis before.
+weeks=np.array([1,3,5,6,7,52,57])
+#We call the fuction fit_ar_model and give the variables and return the coef and the intercept.
+coefficient, intercept = fit_ar_model(avg_sales,weeks)
+#Call the prediction fuction and the fuction return us an array.
+pred=pd.DataFrame(index=avg_sales.index, data=predict_ar_model(avg_sales, weeks, coefficient, intercept))
+#Plot the results from the initial values of avg_sales and the prediction sales.
 plt.figure(figsize=(20,5))
 plt.plot(avg_sales, 'o')
 plt.plot(pred)
@@ -309,7 +337,6 @@ plt.grid()
 plt.show()
 
 #AR Residuals: avg -0.00, std 0.04
-S
 
 #R^2 MEANING
 #You should evaluate R-squared values in conjunction with residual plots, 
@@ -318,21 +345,6 @@ S
 #100% indicates that the model explains all the variability of the response data around its mean.
 
 #http://blog.minitab.com/blog/adventures-in-statistics-2/regression-analysis-how-do-i-interpret-r-squared-and-assess-the-goodness-of-fit
-
-
-
-
-
-
-
-
-
-
-
-\
-
-
-
 
 
 #
