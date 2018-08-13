@@ -279,7 +279,10 @@ def fit_ar_model(avg_sales, weeks):
     #Those are the variables that returns the model.
     return linear_regression.coef_, linear_regression.intercept_
     
-    #With the coefficient and the intercept that we was exported from the ar_model we give it as import to the prediction_model.
+#With the coefficient and the intercept that we was exported from the ar_model we give it as import to the prediction_model.
+#The model uses all avg_sales and fills the array with valueswhich satisfy the condition I have set.
+#WE have 1-D arrays and .dot method create the inner product of vectors.
+#All these values are summarized
 def predict_ar_model(avg_sales, orders, coefficient, intercept):
     return np.array([np.sum(np.dot(coefficient, avg_sales.values[(i-weeks)].squeeze())) + intercept  if i >= np.max(weeks) else np.nan for i in range(len(avg_sales))])
 
@@ -292,6 +295,7 @@ weeks=np.array([1,6,52])
 coefficient, intercept = fit_ar_model(avg_sales,weeks)
 #Call the prediction fuction and the fuction return us an array.
 pred=pd.DataFrame(index=avg_sales.index, data=predict_ar_model(avg_sales, weeks, coefficient, intercept))
+print(pred)
 #Plot the results from the initial values of avg_sales and the prediction sales.
 plt.figure(figsize=(20,5))
 plt.plot(avg_sales, 'o')
@@ -345,6 +349,52 @@ plt.show()
 #100% indicates that the model explains all the variability of the response data around its mean.
 
 #http://blog.minitab.com/blog/adventures-in-statistics-2/regression-analysis-how-do-i-interpret-r-squared-and-assess-the-goodness-of-fit
+
+
+#
+#FORECAST MODEL FOR STORE 20
+#
+#Focus on Store 20 which make the highest sales of all gas stations.
+#fs= focus_store
+
+fs=unified_table.where( unified_table['Store'] == 20)
+fs=fs.dropna()
+fs=fs.groupby(by=['Date'], as_index=False)['Weekly_Sales'].sum()
+fs = fs.set_index('Date')
+df = pd.DataFrame(fs)
+df['week']=df.reset_index().index
+fs
+
+plt.figure(figsize=(20,5))
+plt.plot(fs.week, fs.values)
+plt.show()
+
+
+#THE 2-D fs, make it 1-D fsw
+fsw = fs.set_index('week')
+
+fig, axes = plt.subplots(1,2, figsize=(20,5))
+plot_acf(fsw.values, lags=100, alpha=0.05, ax=axes[0])
+plot_pacf(fsw.values, lags=100, alpha=0.05, ax=axes[1])
+plt.show()
+
+weeks=np.array([1,6,29,46,52])
+coef, intercept = fit_ar_model(fsw,weeks)
+pred=pd.DataFrame(index=fsw.index, data=predict_ar_model(fsw, weeks, coef, intercept))
+plt.figure(figsize=(20,5))
+plt.plot(fsw, 'r')
+plt.plot(pred)
+plt.show()
+
+
+diff=(fsw['Weekly_Sales']-pred[0])/fsw['Weekly_Sales']
+print('AR Residuals: avg %.2f, std %.2f' % (diff.mean(), diff.std()))
+plt.figure(figsize=(20,5))
+plt.plot(diff, c='orange')
+plt.grid()
+plt.show()
+
+
 
 
 #
