@@ -305,6 +305,7 @@ plt.show()
 #[[ 0.10934893 -0.02861279  0.81512715]] [5324365.82203244]
 #Score factor: 0.87 is R^2
 
+#AFTER THE 52 WEEK
 diff=(avg_sales['Weekly_Sales']-pred[0])/avg_sales['Weekly_Sales']
 
 print('AR Residuals: avg %.2f, std %.2f' % (diff.mean(), diff.std()))
@@ -332,9 +333,7 @@ plt.show()
 #Score factor: 0.88 is R^2, It explains how well the linear model fits a set of observations. 
 
 diff=(avg_sales['Weekly_Sales']-pred[0])/avg_sales['Weekly_Sales']
-
-print('AR Residuals: avg %.2f, std %.2f' % (diff.mean(), diff.std()))
- 
+print('AR Residuals: avg %.2f, std %.2f' % (diff.mean(), diff.std())) 
 plt.figure(figsize=(20,5))
 plt.plot(diff, c='orange')
 plt.grid()
@@ -378,6 +377,8 @@ plot_acf(fsw.values, lags=100, alpha=0.05, ax=axes[0])
 plot_pacf(fsw.values, lags=100, alpha=0.05, ax=axes[1])
 plt.show()
 
+
+#Version 1
 weeks=np.array([1,6,29,46,52])
 coef, intercept = fit_ar_model(fsw,weeks)
 pred=pd.DataFrame(index=fsw.index, data=predict_ar_model(fsw, weeks, coef, intercept))
@@ -385,14 +386,39 @@ plt.figure(figsize=(20,5))
 plt.plot(fsw, 'r')
 plt.plot(pred)
 plt.show()
+#[[ 0.12007631 -0.02882628 -0.00895904  0.03520367  0.75093771]] [309689.73529126]
+#Score factor: 0.75
 
 
+#DIAGRAM STARTS FROM WEEK 52
 diff=(fsw['Weekly_Sales']-pred[0])/fsw['Weekly_Sales']
 print('AR Residuals: avg %.2f, std %.2f' % (diff.mean(), diff.std()))
 plt.figure(figsize=(20,5))
 plt.plot(diff, c='orange')
 plt.grid()
 plt.show()
+
+
+#Version 2
+weeks=np.array([1,2,6,29,39,46,52])
+coef, intercept = fit_ar_model(fsw,weeks)
+pred=pd.DataFrame(index=fsw.index, data=predict_ar_model(fsw, weeks, coef, intercept))
+plt.figure(figsize=(20,5))
+plt.plot(fsw, 'b')
+plt.plot(pred, 'r')
+plt.show()
+#[[ 0.14423516 -0.06246291 -0.02116239 -0.00926447  0.00350683  0.03973046
+#   0.75616876]] [347087.57553849]
+#Score factor: 0.76
+
+#DIAGRAM STARTS FROM WEEK 52
+diff=(fsw['Weekly_Sales']-pred[0])/fsw['Weekly_Sales']
+print('AR Residuals: avg %.2f, std %.2f' % (diff.mean(), diff.std()))
+plt.figure(figsize=(20,5))
+plt.plot(diff,'o')
+plt.grid()
+plt.show()
+#AR Residuals: avg -0.00, std 0.05
 
 
 
