@@ -422,6 +422,46 @@ plt.show()
 
 
 
+#
+#Take a look on the external info that we have not been taken into account
+#
+
+#From the unified table we need to slice all the columns that we are going to analyze.
+extra_analysis=unified_table.where( unified_table['Store'] == 20)
+extra_analysis=extra_analysis.dropna()
+extra_analysis=extra_analysis.groupby(by=['Date'], as_index=False)[['Temperature', 'Fuel_Price', 'CPI', 'Unemployment', 
+                                                  'MarkDown1', 'MarkDown2', 'MarkDown3', 'MarkDown4', 'MarkDown5']].mean()
+extra_analysis = extra_analysis.set_index('Date')
+extra_analysis.head()
+
+
+#We need to take a quick look at the variables
+extra_analysis.describe()
+
+
+#One technique tha we used before was the shifting. We need to shift the days (-1) and reran the whole analysis, to see if the correlation between the 
+#variables are the same and if there are some insights. I took the fsw. I create a new column in extra_analysis array the 'shifted_sales' and in this 
+#column I will run the correlation analysis.
+extra_analysis['shifted_sales'] = fsw.shift(-1)
+extra_analysis.head()
+
+#I run again the correlation code to see if the are the same 
+import seaborn as sns
+corr = extra_analysis.corr()
+plt.figure(figsize=(10,10))
+sns.heatmap(corr, 
+            annot=True, fmt=".3f",
+            xticklabels=corr.columns.values,
+            yticklabels=corr.columns.values)
+plt.show()
+
+
+#In this step I have to analyze the results and compare this correlation matrix with the first one that I have exported a few steps before.
+#I think that I have to focus on the results from the column 'shifted_sales', because this column will reveal if there is dependence between
+#one day and the next.
+corr['shifted_sales'].sort_values(ascending=False)
+
+
 
 #
 #REGRESSION ANALYSIS
