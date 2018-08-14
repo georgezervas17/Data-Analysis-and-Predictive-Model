@@ -1,14 +1,19 @@
 
-import numpy as np #I use numpy for Linear Algebra
-import pandas as pd #I use pandas for data processing, I have to upload my CSV Files
-from prettytable import PrettyTable #In Anaconda prompt you have to install the PrettyTable
-									#Command: 'easy_install prettytable'
+#I use numpy for Linear Algebra
+import numpy as np 
+
+ #I use pandas for data processing, I have to upload my CSV Files
+import pandas as pd
+
+#In Anaconda prompt you have to install the PrettyTable
+#Command: 'easy_install prettytable'
+from prettytable import PrettyTable 
 
 #___________________________________________________________________________________________________________________________________________
 
 
 #
-#*********************************DATA IMPORTATION*********************************
+#_________________________________DATA IMPORTATION_________________________________
 #
 
 #Load the 3 CSV that we are gonna
@@ -30,14 +35,13 @@ print('Features: ', features.columns.tolist())
 print('Sales: ',sales.columns.tolist())
 print('Stores: ', stores.columns.tolist())
 
-
 #___________________________________________________________________________________________________________________________________________
 
 #
 #_________________________________DATA PREPARATION AND CORRELATION HEATMAP_________________________________
+#
 
-
-#Union all the columns in one table so that can easy to correlate all the values, I use pandas DateFrame
+#Union all the columns in one table so that can easy correlate all the values, I use pandas DateFrame to handle better the array.
 unified_table = sales.merge(features,how="left", on=['Store', 'Date', 'IsHoliday']) 
 unified_table = unified_table.merge(stores,how ="left",on=['Store'])				
 unified_table.head()															    
@@ -45,7 +49,7 @@ unified_table.head()
 #import matplotlib for the correlation
 import matplotlib.pyplot as plt 													
 
-#I use the unified table to correlate the values
+#I use the unified table and I select the columns that I want to correlate.
 corrmat = unified_table[['Store','Date','Weekly_Sales','Temperature','Fuel_Price','CPI',
 						 'Unemployment','Type','IsHoliday','MarkDown1',
 						 'MarkDown2','MarkDown3','MarkDown4','MarkDown5',
@@ -54,28 +58,31 @@ corrmat = unified_table[['Store','Date','Weekly_Sales','Temperature','Fuel_Price
 #I need this import for the results of the correlation
 import seaborn as sns	
 
-#We have to change the values in because it doesn't correlate those values
-#(Denormalization) Temperature,Fuel_Price,CPI,Unenployment
+
+#I present the results of the correlation analysis with a heatmap.
 f, ax = plt.subplots(figsize=(12,9))
 sns.heatmap(corrmat,vmax=1, square=True, annot=True );	
 
+#We have to change the values because some of them are NaN.
+#(Denormalization) Temperature,Fuel_Price,CPI,Unenployment
 #Identify how many values are NaN from each column
 info = pd.DataFrame(unified_table.dtypes).T.rename(index = {0:'Column Type'})	
 info = info.append(pd.DataFrame(unified_table.isnull().sum()).T.rename(index = {0:'null values (nb)'}))
 info
 
-
+#Fill all the NaN values with 0.
 unified_table.fillna(0, inplace=True)
 
 
-#I use the unified table to correlate all the values
+#I run again the correlation analysis 
 corrmat = unified_table[['Store','Date','Weekly_Sales','Temperature','Fuel_Price','CPI',
 						 'Unemployment','Type','IsHoliday','MarkDown1',
 						 'MarkDown2','MarkDown3','MarkDown4','MarkDown5',
 						 'Size','Dept']].corr() 						
 
 
-	#We had ran the Correlation and it's time to see the matrix with the results.			
+#I present the results of the correlation analysis with a heatmap.
+#After processing we see that the correlation heatmap is complete.
 f, ax = plt.subplots(figsize=(12,9)) 
 sns.heatmap(corrmat,vmax=1, square=True, annot=True ); 
 
@@ -91,7 +98,7 @@ sns.heatmap(corrmat,vmax=1, square=True, annot=True );
 top_average_sales= unified_table.groupby(by=['Date'],as_index=False )['Weekly_Sales'].sum() 
 
 print(top_average_sales.sort_values('Weekly_Sales',ascending= False).head(10)) 				
-#Date  Weekly_Sales
+#No   Date         Weekly_Sales
 #46   2010-12-24   80931415.60
 #98   2011-12-23   76998241.31
 #94   2011-11-25   66593605.26
@@ -105,7 +112,7 @@ print(top_average_sales.sort_values('Weekly_Sales',ascending= False).head(10))
 
 #TOP 10 ASCENDING (Sorted)
 print(top_average_sales.sort_values('Weekly_Sales',ascending= True).head(10)) 				
-# Date  Weekly_Sales
+#No   Date         Weekly_Sales
 #51   2011-01-28   39599852.99
 #103  2012-01-27   39834974.67
 #47   2010-12-31   40432519.00
@@ -123,9 +130,8 @@ average_sales_week = unified_table.groupby(by=['Date'], as_index=False)['Weekly_
 #Y
 average_sales = average_sales_week.sort_values('Weekly_Sales',ascending=False)	   
 
-#DEFINE THE PLOT 
-#IMPORT THE DATA FROM EACH AXIS
-#SHOW THE LINE CHART 
+
+#***********************Line Chart***********************
 plt.figure(figsize=(20,5))
 plt.plot(average_sales_week.Date,average_sales_week.Weekly_Sales)	
 plt.show()
@@ -135,6 +141,9 @@ plt.show()
 fuel_price = unified_table.groupby(by=['Date'], as_index=False)['Fuel_Price'].mean()
 temperature = unified_table.groupby(by=['Date'], as_index=False)['Temperature'].mean()
 
+
+
+#***********************Combined Line Chart***********************
 # 2 Y-AXIS GRAPH COMBINATION OF FUEL_PRICE AND TEMPERATURE (Y),DATE (X)
 fig, ax1 = plt.subplots(figsize=(20,5)) 
 ax1.plot(fuel_price.Date,fuel_price.Fuel_Price, 'g-' )
@@ -143,19 +152,20 @@ ax2 = ax1.twinx()
 ax2.plot(temperature.Date,temperature.Temperature, 'b-')
 plt.show() 
 
+
+
+#***********************Combined Bar and Line Chart***********************
 # 2 Y-AXIS GRAPH COMBINATION OF FUEL_PRICE AND AVERAGE SALES VOLUME (Y),DATE (X)
 fig, ax1 = plt.subplots(figsize=(20,5)) 
-
 ax1.plot(fuel_price.Date,fuel_price.Fuel_Price, 'b-' )
 ax2 = ax1.twinx()
 #SHOW US THE SEASONALITY
-#ax2.plot(average_sales_week.Date,average_sales_week.Weekly_Sales, 'b-')
 plt.bar(average_sales_week.Date,average_sales_week.Weekly_Sales, color = 'orange')
 plt.ylabel("Avg Sales (10K)")
 plt.show() 
 
 
-# FOCUS ON THE STORE THAT MAKES TOP SALES 
+#Top Store Sales Descending Sorted
 top_sales = unified_table.groupby(by=['Store'],as_index=False)['Weekly_Sales'].sum()
 print(top_sales.sort_values('Weekly_Sales',ascending=False)[:10])
 
@@ -177,27 +187,33 @@ print(top_sales.sort_values('Weekly_Sales',ascending=False)[:10])
 # Create the first Forecast Model for Total Sales Volume.
 
 
-#IMPORT THE NECESSARY LIBRARY FOR THE AUTOCORRELATION AND PARTIAL
+#IMPORT THE NECESSARY LIBRARY FOR THE AUTOCORRELATION AND PARTIAL AUTOCORRELATION
 from statsmodels.graphics.tsaplots import acf,pacf,plot_acf,plot_pacf 
 #acf = autocorrelation function
 #pacf = partial autocorrelation function
-#See the Table Dimension
 
 
-#FROM average_sales_week DATA FRAME WE ARE USING FROM THE EXCISTING COLUMNS
+#I make a small correlation analysis to see if one day has a strong or not relationship with the day before. 
+#FROM average_sales_week DATAFRAME WE ARE USING FROM THE EXCISTING COLUMNS
 #(DATE,AVG_SALES) WE ARE USING ONLY DATE
 avg_sales = average_sales_week.set_index('Date') 
 
-avg_sales.shape 
+#From avg_sales we want only the weekly sales.
+#We need the Weekly_Sales because in this column will run the correlation analysis.
 x=avg_sales['Weekly_Sales']
 
+#Set the variables with the days. day_i are all days, the day_i_minus has one less day, the last one.
 day_i= x[1:]
 day_i_minus = x[:-1]
 
 #The number that measures how correlate are the day_i with the day_i_minus
 np.corrcoef(day_i_minus,day_i)[0,1]
+#From the result we understand that there is a correlation between the days, but the number doesn't give us the confidence that we want.
 #0.3377879144700981
 
+#________________________________________________________________________________________________________________________________________________
+
+#_________________________________SCATTER PLOT WHO SHOW US THAT APPEARS A CORRELATION BETWEEN DAS_________________________________
 
 #I present you in a scatter plot the distribution of avg sales of day i (x) and avg sales day i-1 (y).
 #With this diagram we understand that i days and the day before i are highly correlated.
@@ -208,6 +224,24 @@ area = (30 * np.random.rand(len(day_i)))**2  # 0 to 15 point radii
 plt.scatter(day_i,day_i_minus,c = colors, alpha =0.6)
 plt.xlabel("avg sales day i")
 plt.ylabel("avg sales day i-1")
+
+
+
+#________________________________________________________________________________________________________________________________________________
+
+#
+#_________________________________AUTOCORRELATION AND PARTIAL AUTOCORRELATION FOR AVG_SALES VOLUME_________________________________
+#
+#This is a pre analysis of avg_sales to how
+#THIS IS THE AUTOCORRELATION PLOT WHICH INCLUDES X AXES = avg_sales, 
+#We correlate a time series with its self.
+from statsmodels.graphics.tsaplots import acf, pacf, plot_acf, plot_pacf
+from statsmodels.tsa.seasonal import seasonal_decompose
+from pandas.core import datetools
+fig, axes = plt.subplots(1,2, figsize=(22,8))
+plot_acf(avg_sales, ax=axes[0])
+plot_pacf(avg_sales, ax=axes[1])
+plt.show()
 
 #
 #Autocorrelation and Partial Correlation Code.
@@ -223,27 +257,10 @@ plt.ylabel("avg sales day i-1")
 #+
 
 
-#________________________________________________________________________________________________________________________________________________
-
-#
-#_________________________________AUTOCORRELATION AND PARTIAL AUTOCORRELATION FOR AVG_SALES VOLUME_________________________________
-#
-#CREATE THE CONTAINER FOR ALL THE PLOTS, 1 FIGURE, 2 PLOT AND THE FIGSIZE
-#THIS IS THE AUTOCORRELATION PLOT WITCH INCLUDES X AXES = avg_sales, 
-#We correlate a time series with its self.
-from statsmodels.graphics.tsaplots import acf, pacf, plot_acf, plot_pacf
-from statsmodels.tsa.seasonal import seasonal_decompose
-from pandas.core import datetools
-fig, axes = plt.subplots(1,2, figsize=(22,8))
-plot_acf(avg_sales, ax=axes[0])
-plot_pacf(avg_sales, ax=axes[1])
-plt.show()
-
-
-#WE FOCUS ON THE AUTOCORRELATION RESULTS 
-#WE NEED THE MOST POSITIVE AND NEGATIVE CORRELATED WEEKS.
-#1,52 WEEK IS POSITIVE CORRELATED
-#6 WEEK IS NEGATIVE CORRELATED
+#***************RESULTS************************
+#We need to focus on the high value weeks. We see that
+#1,52 weeks are positive correlated.
+#6 week is negative correlated.
 
 
 #________________________________________________________________________________________________________________________________________________
@@ -258,8 +275,8 @@ plt.show()
 #It is a manual implementation of the model, because I have to deal with consecutive seasonality terms.
 from sklearn.linear_model import LinearRegression
 
-#I made a new fuction called fit_ar_model which need the avg_sales and the weeks from the observation
-# and return the coefficient and the intercept of those values
+#I made a new fuction called fit_ar_model which need the avg_sales and the weeks from the observation as input.
+#The function return the coefficient and the intercept of those values.
 def fit_ar_model(avg_sales, weeks): 
     
     #.values() is a method that returns the values available (avg_sales)
@@ -287,6 +304,7 @@ def fit_ar_model(avg_sales, weeks):
     #Print some results.
     print(linear_regression.coef_, linear_regression.intercept_)
 
+    #Print the score factor is R^2
     print('Score factor: %.2f' % linear_regression.score(X[mask],Y[mask]))
     
     #Those are the variables that returns the model.
@@ -301,9 +319,9 @@ def predict_ar_model(avg_sales, orders, coefficient, intercept):
 
 
 #
-#_________________________________Version 1_________________________________
+#_________________________________Sales Prediction Version 1_________________________________
 #
-
+#Given the seasonality observed from the ACF and the PACF function, the AR model is implemented including seasonality from weeks (1,6,52).
 #We set in an array the weeks that we have focus from the correlation analysis before.
 weeks=np.array([1,6,52])
 #We call the fuction fit_ar_model and give the variables and return the coef and the intercept.
@@ -318,13 +336,12 @@ plt.plot(pred)
 plt.show()
 
 #[[ 0.10934893 -0.02861279  0.81512715]] [5324365.82203244]
-#Score factor: 0.87 is R^2
+#Score factor: 0.87 is R^2, It explains how well the linear model fits a set of observations. 
 
-#AFTER THE 52 WEEK
+
+#After 52 week we will see the prediction line.
 diff=(avg_sales['Weekly_Sales']-pred[0])/avg_sales['Weekly_Sales']
-
 print('AR Residuals: avg %.2f, std %.2f' % (diff.mean(), diff.std()))
- 
 plt.figure(figsize=(20,5))
 plt.plot(diff, c='orange')
 plt.grid()
@@ -333,8 +350,9 @@ plt.show()
 
 
 #
-#_________________________________Version 2_________________________________
+#_________________________________Sales Prediction Version 2_________________________________
 #
+#Given the seasonality observed from the ACF and the PACF function, the AR model is implemented including seasonality from weeks (1,6,52).
 
 #We set in an array the weeks that we have focus from the correlation analysis before.
 weeks=np.array([1,3,5,6,7,52,57])
@@ -350,6 +368,8 @@ plt.show()
 #[[ 0.10048464 -0.01241379  0.12070971 -0.04203942  0.06321909  0.81755888  -0.11070239]] [3393829.07345329]
 #Score factor: 0.88 is R^2, It explains how well the linear model fits a set of observations. 
 
+
+#After 57 week we will see the prediction line.
 diff=(avg_sales['Weekly_Sales']-pred[0])/avg_sales['Weekly_Sales']
 print('AR Residuals: avg %.2f, std %.2f' % (diff.mean(), diff.std())) 
 plt.figure(figsize=(20,5))
@@ -357,9 +377,6 @@ plt.plot(diff, c='orange')
 plt.grid()
 plt.show()
 #AR Residuals: avg -0.00, std 0.04
-
-
-
 
 
 #R^2 MEANING
@@ -376,25 +393,30 @@ plt.show()
 #
 #_________________________________FORECAST MODEL DEFIBNITION FOR STORE 20_________________________________
 #
-#Focus on Store 20 which make the highest sales of all gas stations.
+#Focus on Store 20 which we saw before that makes the highest sales of all gas stations on the dataset.
 #fs= focus_store
 
+#I create a new table the fs to slice unified_table and bring to this array all the values of store 20.
 fs=unified_table.where( unified_table['Store'] == 20)
+#Removing missing values, because this will effect negativly the analysis.
 fs=fs.dropna()
+#For the analysis we want the sales, so I groupby date all the Weekly_Sales
 fs=fs.groupby(by=['Date'], as_index=False)['Weekly_Sales'].sum()
 fs = fs.set_index('Date')
 df = pd.DataFrame(fs)
+#I make a transformation in array and I create a new Column with name 'week' to change from date to number of weeks.
+#There are no calendar weeks but a row numbering.
 df['week']=df.reset_index().index
 fs
 
+#I present the sales values by week in a Line Chart.
 plt.figure(figsize=(20,5))
 plt.plot(fs.week, fs.values)
 plt.show()
 
-
+#I run again the Autocorrelation and Partial Correlation code,this time with fsw array.
 #THE 2-D fs, make it 1-D fsw
 fsw = fs.set_index('week')
-
 fig, axes = plt.subplots(1,2, figsize=(20,5))
 plot_acf(fsw.values, lags=100, alpha=0.05, ax=axes[0])
 plot_pacf(fsw.values, lags=100, alpha=0.05, ax=axes[1])
@@ -402,20 +424,25 @@ plt.show()
 
 
 #
-#_________________________________Version 1_________________________________
+#_________________________________Sales Prediction Version 1 for store 20_________________________________
 #
+#I set the consecutive seasonality terms. The values 1,6,29 was picked from the autocorrelation analysis (highest values positive or negative )
 weeks=np.array([1,6,29,46,52])
+#Call the function and set the returning values.
 coef, intercept = fit_ar_model(fsw,weeks)
+#Call the prediction function
 pred=pd.DataFrame(index=fsw.index, data=predict_ar_model(fsw, weeks, coef, intercept))
+#Presenting the resulting from the fsw array (original values) combined with the predicted values of the algorithm.
+#The predictions are after 52 week.
 plt.figure(figsize=(20,5))
-plt.plot(fsw, 'r')
-plt.plot(pred)
+plt.plot(fsw, 'b')
+plt.plot(pred, 'r')
 plt.show()
 #[[ 0.12007631 -0.02882628 -0.00895904  0.03520367  0.75093771]] [309689.73529126]
-#Score factor: 0.75
+#Score factor: 0.75, It explains how well the linear model fits a set of observations. 
 
 
-#DIAGRAM STARTS FROM WEEK 52
+#This graph shows us the differences from the original values and the redicted during the weeks. After 52 week.
 diff=(fsw['Weekly_Sales']-pred[0])/fsw['Weekly_Sales']
 print('AR Residuals: avg %.2f, std %.2f' % (diff.mean(), diff.std()))
 plt.figure(figsize=(20,5))
@@ -425,20 +452,24 @@ plt.show()
 
 
 #
-#_________________________________Version 2_________________________________
+#_________________________________Sales Prediction Version 2 for store 20_________________________________
 #
+#I set the consecutive seasonality terms. The values 1,6,29 was picked from the autocorrelation analysis (highest values positive or negative )
 weeks=np.array([1,2,6,29,39,46,52])
+#Call the function and set the returning values.
 coef, intercept = fit_ar_model(fsw,weeks)
+#Call the prediction function
 pred=pd.DataFrame(index=fsw.index, data=predict_ar_model(fsw, weeks, coef, intercept))
+#Presenting the resulting from the fsw array (original values) combined with the predicted values of the algorithm.
+#The predictions are after 52 week.
 plt.figure(figsize=(20,5))
 plt.plot(fsw, 'b')
 plt.plot(pred, 'r')
 plt.show()
 #[[ 0.14423516 -0.06246291 -0.02116239 -0.00926447  0.00350683  0.03973046 0.75616876]] [347087.57553849]
-#Score factor: 0.76
+#Score factor: 0.76, It explains how well the linear model fits a set of observations. 
 
-#DIAGRAM STARTS FROM WEEK 52
-diff=(fsw['Weekly_Sales']-pred[0])/fsw['Weekly_Sales']
+#This graph shows us the differences from the original values and the redicted during the weeks. After 52 week.diff=(fsw['Weekly_Sales']-pred[0])/fsw['Weekly_Sales']
 print('AR Residuals: avg %.2f, std %.2f' % (diff.mean(), diff.std()))
 plt.figure(figsize=(20,5))
 plt.plot(diff,'o')
@@ -454,7 +485,7 @@ plt.show()
 #_________________________________EXTRA ANALYSIS ON REMAINING DATA_________________________________
 #
 
-#From the unified table we need to slice all the columns that we are going to analyze.
+#From the unified_table we need to slice all the columns that we are going to analyzed.
 extra_analysis=unified_table.where( unified_table['Store'] == 20)
 extra_analysis=extra_analysis.dropna()
 extra_analysis=extra_analysis.groupby(by=['Date'], as_index=False)[['Temperature', 'Fuel_Price', 'CPI', 'Unemployment', 
@@ -463,17 +494,19 @@ extra_analysis = extra_analysis.set_index('Date')
 extra_analysis.head()
 
 
-#We need to take a quick look at the variables
+#We need to take a quick look at the variables.This function compute mean,std,min,max, etc of each column. 
 extra_analysis.describe()
 
 
-#One technique tha we used before was the shifting. We need to shift the days (-1) and reran the whole analysis, to see if the correlation between the 
-#variables are the same and if there are some insights. I took the fsw. I create a new column in extra_analysis array the 'shifted_sales' and in this 
+#One technique that we used before was the shifting. We need to shift the days (-1) and reran the whole analysis,
+# to see if the correlation between the 
+#variables are the same and if there are some insights. I took the fsw. 
+#I create a new column in extra_analysis array the 'shifted_sales' and in this 
 #column I will run the correlation analysis.
 extra_analysis['shifted_sales'] = fs.shift(-1)
 extra_analysis.head()
 
-#I run again the correlation code to see if the are the same 
+#I run again the correlation code to see if the are the same relationships between the columns.
 import seaborn as sns
 corr = extra_analysis.corr()
 plt.figure(figsize=(10,10))
