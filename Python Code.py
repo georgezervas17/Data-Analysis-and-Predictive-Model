@@ -4,9 +4,11 @@ import pandas as pd #I use pandas for data processing, I have to upload my CSV F
 from prettytable import PrettyTable #In Anaconda prompt you have to install the PrettyTable
 									#Command: 'easy_install prettytable'
 
+#___________________________________________________________________________________________________________________________________________
+
 
 #
-#DATA IMPORTATION
+#*********************************DATA IMPORTATION*********************************
 #
 
 #Load the 3 CSV that we are gonna
@@ -29,9 +31,11 @@ print('Sales: ',sales.columns.tolist())
 print('Stores: ', stores.columns.tolist())
 
 
+#___________________________________________________________________________________________________________________________________________
+
 #
-#DATA PREPARATION AND CORRELATION HEATMAP
-#
+#_________________________________DATA PREPARATION AND CORRELATION HEATMAP_________________________________
+
 
 #Union all the columns in one table so that can easy to correlate all the values, I use pandas DateFrame
 unified_table = sales.merge(features,how="left", on=['Store', 'Date', 'IsHoliday']) 
@@ -74,9 +78,11 @@ corrmat = unified_table[['Store','Date','Weekly_Sales','Temperature','Fuel_Price
 	#We had ran the Correlation and it's time to see the matrix with the results.			
 f, ax = plt.subplots(figsize=(12,9)) 
 sns.heatmap(corrmat,vmax=1, square=True, annot=True ); 
+
+#________________________________________________________________________________________________________________________________________________
 														 
 #
-# INSIGHT GRAPHS
+#_________________________________INSIGHT GRAPHS_________________________________
 #
 
 #Sum the Column 'Weekly Sales' by Date
@@ -160,10 +166,10 @@ print(top_sales.sort_values('Weekly_Sales',ascending=False)[:10])
 #  13 	 2.865177e+08
 
 
-
+#________________________________________________________________________________________________________________________________________________
 
 #
-#AUTOCORRELATION = SERIAL CORRELATION INTRODUCTION
+#_________________________________AUTOCORRELATION = SERIAL CORRELATION INTRODUCTION_________________________________
 #
 
 
@@ -217,6 +223,11 @@ plt.ylabel("avg sales day i-1")
 #+
 
 
+#________________________________________________________________________________________________________________________________________________
+
+#
+#_________________________________AUTOCORRELATION AND PARTIAL AUTOCORRELATION FOR AVG_SALES VOLUME_________________________________
+#
 #CREATE THE CONTAINER FOR ALL THE PLOTS, 1 FIGURE, 2 PLOT AND THE FIGSIZE
 #THIS IS THE AUTOCORRELATION PLOT WITCH INCLUDES X AXES = avg_sales, 
 #We correlate a time series with its self.
@@ -235,8 +246,10 @@ plt.show()
 #6 WEEK IS NEGATIVE CORRELATED
 
 
+#________________________________________________________________________________________________________________________________________________
+
 #
-#MODEL DEFINITION 1
+#_________________________________FORECAST MODEL DEFINITION_________________________________
 #
 #STEP BY STEP.
 #https://machinelearningmastery.com/autoregression-models-time-series-forecasting-python/
@@ -287,8 +300,10 @@ def predict_ar_model(avg_sales, orders, coefficient, intercept):
     return np.array([np.sum(np.dot(coefficient, avg_sales.values[(i-weeks)].squeeze())) + intercept  if i >= np.max(weeks) else np.nan for i in range(len(avg_sales))])
 
 
+#
+#_________________________________Version 1_________________________________
+#
 
-#Version 1
 #We set in an array the weeks that we have focus from the correlation analysis before.
 weeks=np.array([1,6,52])
 #We call the fuction fit_ar_model and give the variables and return the coef and the intercept.
@@ -317,7 +332,10 @@ plt.show()
 #AR Residuals: avg -0.00, std 0.03S
 
 
-#Version 2
+#
+#_________________________________Version 2_________________________________
+#
+
 #We set in an array the weeks that we have focus from the correlation analysis before.
 weeks=np.array([1,3,5,6,7,52,57])
 #We call the fuction fit_ar_model and give the variables and return the coef and the intercept.
@@ -338,8 +356,11 @@ plt.figure(figsize=(20,5))
 plt.plot(diff, c='orange')
 plt.grid()
 plt.show()
-
 #AR Residuals: avg -0.00, std 0.04
+
+
+
+
 
 #R^2 MEANING
 #You should evaluate R-squared values in conjunction with residual plots, 
@@ -350,8 +371,10 @@ plt.show()
 #http://blog.minitab.com/blog/adventures-in-statistics-2/regression-analysis-how-do-i-interpret-r-squared-and-assess-the-goodness-of-fit
 
 
+#________________________________________________________________________________________________________________________________________________
+
 #
-#FORECAST MODEL FOR STORE 20
+#_________________________________FORECAST MODEL DEFIBNITION FOR STORE 20_________________________________
 #
 #Focus on Store 20 which make the highest sales of all gas stations.
 #fs= focus_store
@@ -378,7 +401,9 @@ plot_pacf(fsw.values, lags=100, alpha=0.05, ax=axes[1])
 plt.show()
 
 
-#Version 1
+#
+#_________________________________Version 1_________________________________
+#
 weeks=np.array([1,6,29,46,52])
 coef, intercept = fit_ar_model(fsw,weeks)
 pred=pd.DataFrame(index=fsw.index, data=predict_ar_model(fsw, weeks, coef, intercept))
@@ -399,7 +424,9 @@ plt.grid()
 plt.show()
 
 
-#Version 2
+#
+#_________________________________Version 2_________________________________
+#
 weeks=np.array([1,2,6,29,39,46,52])
 coef, intercept = fit_ar_model(fsw,weeks)
 pred=pd.DataFrame(index=fsw.index, data=predict_ar_model(fsw, weeks, coef, intercept))
@@ -407,8 +434,7 @@ plt.figure(figsize=(20,5))
 plt.plot(fsw, 'b')
 plt.plot(pred, 'r')
 plt.show()
-#[[ 0.14423516 -0.06246291 -0.02116239 -0.00926447  0.00350683  0.03973046
-#   0.75616876]] [347087.57553849]
+#[[ 0.14423516 -0.06246291 -0.02116239 -0.00926447  0.00350683  0.03973046 0.75616876]] [347087.57553849]
 #Score factor: 0.76
 
 #DIAGRAM STARTS FROM WEEK 52
@@ -421,9 +447,11 @@ plt.show()
 #AR Residuals: avg -0.00, std 0.05
 
 
+#________________________________________________________________________________________________________________________________________________
+
 
 #
-#Take a look on the external info that we have not been taken into account
+#_________________________________EXTRA ANALYSIS ON REMAINING DATA_________________________________
 #
 
 #From the unified table we need to slice all the columns that we are going to analyze.
@@ -442,7 +470,7 @@ extra_analysis.describe()
 #One technique tha we used before was the shifting. We need to shift the days (-1) and reran the whole analysis, to see if the correlation between the 
 #variables are the same and if there are some insights. I took the fsw. I create a new column in extra_analysis array the 'shifted_sales' and in this 
 #column I will run the correlation analysis.
-extra_analysis['shifted_sales'] = fsw.shift(-1)
+extra_analysis['shifted_sales'] = fs.shift(-1)
 extra_analysis.head()
 
 #I run again the correlation code to see if the are the same 
@@ -462,9 +490,20 @@ plt.show()
 corr['shifted_sales'].sort_values(ascending=False)
 
 
+#________________________________________________________________________________________________________________________________________________
+
 
 #
-#REGRESSION ANALYSIS
+#_________________________________Re-write the algorithm using these info from the extra_analysis_________________________________
+#
+
+
+
+
+#________________________________________________________________________________________________________________________________________________
+
+#
+#_________________________________REGRESSION ANALYSIS_________________________________
 #
 #SCATTER PLOT FUELPRICE AND TEMPERATURE
 colors = np.random.rand(len(fuel_price))
