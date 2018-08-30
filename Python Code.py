@@ -311,7 +311,7 @@ def fit_ar_model(avg_sales, weeks):
     return linear_regression.coef_, linear_regression.intercept_
     
 #With the coefficient and the intercept that we was exported from the ar_model we give it as import to the prediction_model.
-#The model uses all avg_sales and fills the array with valueswhich satisfy the condition I have set.
+#The model uses all avg_sales and fills the array with values which satisfy the condition I have set.
 #WE have 1-D arrays and .dot method create the inner product of vectors.
 #All these values are summarized
 def predict_ar_model(avg_sales, orders, coefficient, intercept):
@@ -370,10 +370,11 @@ plt.show()
 
 
 #After 57 week we will see the prediction line.
-diff=(avg_sales['Weekly_Sales']-pred[0])/avg_sales['Weekly_Sales']
+diff1=(avg_sales['Weekly_Sales']-pred[0])/avg_sales['Weekly_Sales']
 print('AR Residuals: avg %.2f, std %.2f' % (diff.mean(), diff.std())) 
 plt.figure(figsize=(20,5))
-plt.plot(diff, c='orange')
+plt.plot(diff,'green')
+plt.plot(diff1,'red')
 plt.grid()
 plt.show()
 #AR Residuals: avg -0.00, std 0.04
@@ -391,7 +392,7 @@ plt.show()
 #________________________________________________________________________________________________________________________________________________
 
 #
-#_________________________________FORECAST MODEL DEFIBNITION FOR STORE 20_________________________________
+#_________________________________FORECAST MODEL DEFINITION FOR STORE 20_________________________________
 #
 #Focus on Store 20 which we saw before that makes the highest sales of all gas stations on the dataset.
 #fs= focus_store
@@ -427,7 +428,7 @@ plt.show()
 #_________________________________Sales Prediction Version 1 for store 20_________________________________
 #
 #I set the consecutive seasonality terms. The values 1,6,29 was picked from the autocorrelation analysis (highest values positive or negative )
-weeks=np.array([1,6,29,46,52])
+weeks=np.array([1,2,6,29,46,52])
 #Call the function and set the returning values.
 coef, intercept = fit_ar_model(fsw,weeks)
 #Call the prediction function
@@ -443,19 +444,17 @@ plt.show()
 
 
 #This graph shows us the differences from the original values and the redicted during the weeks. After 52 week.
-diff=(fsw['Weekly_Sales']-pred[0])/fsw['Weekly_Sales']
+diff2=(fsw['Weekly_Sales']-pred[0])/fsw['Weekly_Sales']
 print('AR Residuals: avg %.2f, std %.2f' % (diff.mean(), diff.std()))
 plt.figure(figsize=(20,5))
-plt.plot(diff, c='orange')
+plt.plot(diff2,c='orange')
 plt.grid()
 plt.show()
-
-
 #
 #_________________________________Sales Prediction Version 2 for store 20_________________________________
 #
 #I set the consecutive seasonality terms. The values 1,6,29 was picked from the autocorrelation analysis (highest values positive or negative )
-weeks=np.array([1,2,6,29,39,46,52])
+weeks=np.array([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63])
 #Call the function and set the returning values.
 coef, intercept = fit_ar_model(fsw,weeks)
 #Call the prediction function
@@ -470,9 +469,11 @@ plt.show()
 #Score factor: 0.76, It explains how well the linear model fits a set of observations. 
 
 #This graph shows us the differences from the original values and the redicted during the weeks. After 52 week.diff=(fsw['Weekly_Sales']-pred[0])/fsw['Weekly_Sales']
+diff3=(fsw['Weekly_Sales']-pred[0])/fsw['Weekly_Sales']
 print('AR Residuals: avg %.2f, std %.2f' % (diff.mean(), diff.std()))
 plt.figure(figsize=(20,5))
-plt.plot(diff,'o')
+plt.plot(diff1,'green')
+plt.plot(diff3,'red')
 plt.grid()
 plt.show()
 #AR Residuals: avg -0.00, std 0.05
