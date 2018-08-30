@@ -507,22 +507,12 @@ extra_analysis.describe()
 extra_analysis['shifted_sales'] = fs.shift(-1)
 extra_analysis.head()
 
-#I run again the correlation code to see if the are the same relationships between the columns.
+
+#Correlation analysis for all the values in extra_analysis table.
 import seaborn as sns
-corr = extra_analysis.corr()
-plt.figure(figsize=(10,10))
-sns.heatmap(corr, 
-            annot=True, fmt=".3f",
-            xticklabels=corr.columns.values,
-            yticklabels=corr.columns.values)
-plt.show()
-
-
-#In this step I have to analyze the results and compare this correlation matrix with the first one that I have exported a few steps before.
-#I think that I have to focus on the results from the column 'shifted_sales', because this column will reveal if there is dependence between
-#one day and the next.
-corr['shifted_sales'].sort_values(ascending=False)
-
+corrmat = extra_analysis.corr()
+f, ax = plt.subplots(figsize=(12,9)) 
+sns.heatmap(corrmat,vmax=1, square=True, annot=True ); 
 
 #________________________________________________________________________________________________________________________________________________
 
