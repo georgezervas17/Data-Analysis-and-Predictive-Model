@@ -514,14 +514,18 @@ corrmat = extra_analysis.corr()
 f, ax = plt.subplots(figsize=(12,9)) 
 sns.heatmap(corrmat,vmax=1, square=True, annot=True ); 
 
+
+corr['shifted_sales'].sort_values(ascending=False)
 #________________________________________________________________________________________________________________________________________________
+
+
+
 
 
 #
 #_________________________________Re-write the algorithm using these info from the extra_analysis_________________________________
 #
-
-def fit_ar_model_ext(avg_sales, weeks, ext, fitter=LinearRegression()):
+def fit_ar_model_ext(avg_sales, weeks, ext):
     
     X=np.array([ avg_sales.values[(i-weeks)].squeeze() if i >= np.max(weeks) else np.array(len(weeks) * [np.nan]) for i in range(len(avg_sales))])
     
@@ -531,13 +535,15 @@ def fit_ar_model_ext(avg_sales, weeks, ext, fitter=LinearRegression()):
     
     Y= avg_sales.values
     
-    fitter.fit(X[mask],Y[mask].ravel())
+    linear_regression=LinearRegression()
     
-    print(fitter.coef_, fitter.intercept_)
+    linear_regression.fit(X[mask],Y[mask].ravel())
+    
+    print(linear_regression.coef_, linear_regression.intercept_)
 
-    print('Score factor: %.2f' % fitter.score(X[mask],Y[mask]))
+    print('Score factor: %.2f' % linear_regression.score(X[mask],Y[mask]))
     
-    return fitter.coef_, fitter.intercept_
+    return linear_regression.coef_, linear_regression.intercept_
     
 def predict_ar_model_ext(avg_sales, weeks, ext, coef, intercept):
 
@@ -546,23 +552,31 @@ def predict_ar_model_ext(avg_sales, weeks, ext, coef, intercept):
     X = np.append(X, ext.values, axis=1)
     
     return np.array( np.dot(X, coef.T) + intercept)
+#________________________________________________________________________________________________________________________________________________
 
 
+#
+#___________________In shifted_sales I have one value(the last one which is NaN) I have to replace it_________________________________
+#
 
-#dfexte=dfext.drop(['shifted_sales'], axis=1)
-columns=dfext[['Unemployment','Fuel_Price','CPI','Temperature',
-              'MarkDown1', 'MarkDown2', 'MarkDown3', 'MarkDown4', 'MarkDown5']]
+info = pd.DataFrame(extra_analysis.dtypes).T.rename(index = {0:'Column Type'})	
+info = info.append(pd.DataFrame(extra_analysis.isnull().sum()).T.rename(index = {0:'null values (nb)'}))
+info
+#Fill all the NaN values with 0.
+extra_analysis.fillna(0, inplace=True)
+   
 
-weeks=np.array([1,6,29,46,52])
-coef, intercept = fit_ar_model_ext(fs,weeks,columns)
-pred_ext=pd.DataFrame(index=fs.index, data=predict_ar_model_ext(fs, weeks, columns, coef, intercept))
+weeks=np.array([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52])
+coef, intercept = fit_ar_model_ext(fsw,weeks,extra_analysis)
+pred_ext=pd.DataFrame(index=fsw.index, data=predict_ar_model_ext(fsw, weeks, extra_analysis, coef, intercept))
 plt.figure(figsize=(20,5))
-plt.plot(fs, 'o')
+plt.plot(fsw, 'o')
 plt.plot(pred)
 plt.plot(pred_ext)
 plt.show()
 
 #________________________________________________________________________________________________________________________________________________
+
 
 #
 #_________________________________REGRESSION ANALYSIS_________________________________
