@@ -266,7 +266,7 @@ plt.show()
 #________________________________________________________________________________________________________________________________________________
 
 #
-#_________________________________FORECAST MODEL DEFINITION_________________________________
+#_________________________________FORECAST MODEL DEFINITION (PART 1)_________________________________
 #
 #STEP BY STEP.
 #https://machinelearningmastery.com/autoregression-models-time-series-forecasting-python/
@@ -394,7 +394,7 @@ plt.show()
 #________________________________________________________________________________________________________________________________________________
 
 #
-#_________________________________FORECAST MODEL DEFINITION FOR STORE 20_________________________________
+#_________________________________FORECAST MODEL DEFINITION FOR STORE 20 (PART 2)_________________________________
 #
 #Focus on Store 20 which we saw before that makes the highest sales of all gas stations on the dataset.
 #fs= focus_store
@@ -452,6 +452,7 @@ plt.figure(figsize=(20,5))
 plt.plot(diff2,c='orange')
 plt.grid()
 plt.show()
+
 #
 #_________________________________Sales Prediction Version 2 for store 20_________________________________
 #
@@ -479,8 +480,6 @@ plt.plot(diff3,'red')
 plt.grid()
 plt.show()
 #AR Residuals: avg -0.00, std 0.05
-
-
 #________________________________________________________________________________________________________________________________________________
 
 
@@ -519,9 +518,6 @@ sns.heatmap(corrmat,vmax=1, square=True, annot=True );
 
 corrmat['shifted_sales'].sort_values(ascending=False)
 #________________________________________________________________________________________________________________________________________________
-
-
-
 
 
 #
