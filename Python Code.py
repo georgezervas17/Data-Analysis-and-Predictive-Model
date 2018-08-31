@@ -575,8 +575,26 @@ plt.plot(pred)
 plt.plot(pred_ext)
 plt.show()
 
-#________________________________________________________________________________________________________________________________________________
 
+plt.figure(figsize=(20,5))
+plt.plot(fsw, 'orange')
+plt.plot(pred_ext,'r')
+plt.show()
+
+
+diff4=(fsw['Weekly_Sales']-pred[0])/fsw['Weekly_Sales']
+diff_ext4=(fsw['Weekly_Sales']-pred_ext[0])/fsw['Weekly_Sales']
+
+print('AR Residuals: avg %.2f, std %.2f' % (diff4.mean(), diff4.std()))
+print('AR wiht Ext Residuals: avg %.2f, std %.2f' % (diff_ext4.mean(), diff_ext4.std()))
+ 
+plt.figure(figsize=(20,5))
+plt.plot(diff4, c='green', label='w/o external variables')
+plt.plot(diff_ext4, c='red', label='w/ external variables')
+plt.legend()
+plt.grid()
+plt.show()
+#________________________________________________________________________________________________________________________________________________
 
 #
 #_________________________________REGRESSION ANALYSIS_________________________________
