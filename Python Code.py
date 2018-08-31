@@ -428,7 +428,7 @@ plt.show()
 #_________________________________Sales Prediction Version 1 for store 20_________________________________
 #
 #I set the consecutive seasonality terms. The values 1,6,29 was picked from the autocorrelation analysis (highest values positive or negative )
-weeks=np.array([1,2,6,29,46,52])
+weeks=np.array([1,2,3,5,6,7,10,29,38,39,40,41,43,47,48,51,52])
 #Call the function and set the returning values.
 coef, intercept = fit_ar_model(fsw,weeks)
 #Call the prediction function
@@ -454,7 +454,7 @@ plt.show()
 #_________________________________Sales Prediction Version 2 for store 20_________________________________
 #
 #I set the consecutive seasonality terms. The values 1,6,29 was picked from the autocorrelation analysis (highest values positive or negative )
-weeks=np.array([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63])
+weeks=np.array([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52])
 #Call the function and set the returning values.
 coef, intercept = fit_ar_model(fsw,weeks)
 #Call the prediction function
@@ -521,8 +521,46 @@ sns.heatmap(corrmat,vmax=1, square=True, annot=True );
 #_________________________________Re-write the algorithm using these info from the extra_analysis_________________________________
 #
 
+def fit_ar_model_ext(avg_sales, weeks, ext, fitter=LinearRegression()):
+    
+    X=np.array([ avg_sales.values[(i-weeks)].squeeze() if i >= np.max(weeks) else np.array(len(weeks) * [np.nan]) for i in range(len(avg_sales))])
+    
+    X = np.append(X, ext.values, axis=1)
+    
+    mask = ~np.isnan(X[:,:1]).squeeze()
+    
+    Y= avg_sales.values
+    
+    fitter.fit(X[mask],Y[mask].ravel())
+    
+    print(fitter.coef_, fitter.intercept_)
+
+    print('Score factor: %.2f' % fitter.score(X[mask],Y[mask]))
+    
+    return fitter.coef_, fitter.intercept_
+    
+def predict_ar_model_ext(avg_sales, weeks, ext, coef, intercept):
+
+    X=np.array([ avg_sales.values[(i-weeks)].squeeze() if i >= np.max(weeks) else np.array(len(weeks) * [np.nan]) for i in range(len(avg_sales))])
+    
+    X = np.append(X, ext.values, axis=1)
+    
+    return np.array( np.dot(X, coef.T) + intercept)
 
 
+
+#dfexte=dfext.drop(['shifted_sales'], axis=1)
+columns=dfext[['Unemployment','Fuel_Price','CPI','Temperature',
+              'MarkDown1', 'MarkDown2', 'MarkDown3', 'MarkDown4', 'MarkDown5']]
+
+weeks=np.array([1,6,29,46,52])
+coef, intercept = fit_ar_model_ext(fs,weeks,columns)
+pred_ext=pd.DataFrame(index=fs.index, data=predict_ar_model_ext(fs, weeks, columns, coef, intercept))
+plt.figure(figsize=(20,5))
+plt.plot(fs, 'o')
+plt.plot(pred)
+plt.plot(pred_ext)
+plt.show()
 
 #________________________________________________________________________________________________________________________________________________
 
