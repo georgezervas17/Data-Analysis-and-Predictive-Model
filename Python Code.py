@@ -279,29 +279,30 @@ from sklearn.linear_model import LinearRegression
 #The function return the coefficient and the intercept of those values.
 def fit_ar_model(avg_sales, weeks): 
     
-    #.values() is a method that returns the values available (avg_sales)
-    #.squeeze() Remove Single-dimensional entries from the shape of the avg_sales array.
-    #I create a for loop for all the avg_sales length (len(avg_sales)) 
-    #np.nan means Not A Number and is not equal to 0. The result is not a number.
+    # We have a window with 52 weeks (one year). For each iterative process we move this window and keep the sales prices for these numbers
+    # We start filling the array from i = 52 (Max week in "weeks" array)  from the 52nd week and we reach up to 0, holding all these values. Then we increase i = i + 1 and we start to keep sales from
+    # Week 53th to 1. Continue until all the weeks of the data set are over. All these values ​​are the independent values ​​of our model.
     X=np.array([ avg_sales.values[(i-weeks)].squeeze() if i >= np.max(weeks) else np.array(len(weeks) * [np.nan]) for i in range(len(avg_sales))])
-    
-    #The .isnan fuction detenmines whether a value is an illegal number, this function helps to void the 
-    #noise and the not normal numbers that will effect our model.
-    #The bit of np array inverted. We want from X array to squeeze() all the values from the beggining only 
-    #for the 1st dimension which is Weekly_Sales
-    #As mask we set all the Weekly_Sales which are numbers from X array.
+
+    #We create a mask to test if the are any NaN values, using boolean array. Due to else statement the X array includes NaN cells.
+    # isnan is a function that ask's every value if it is empty or no. It create's a boolean matrix like the example below.
+    #False False False False False False False False False False False False
+    #False False False False False  True  True  True  True  True  True  True
+    #True  True  True  True  True  True  True  True  True  True  True  True
+    #_________________________________ ... _________________________________
     mask = ~np.isnan(X[:,:1]).squeeze()
     
-    #The Independent values are the Weekly_Sales
+    #Y vales start from the last numerical week that we have selected in variable "weeks", so it starts from the 52th week. Those are our dependent values.
+    #We have to predict values after 52th week.
     Y= avg_sales.values
     
-    #Set a variable
+    #Set a variable for the Linear Regression Model.
     linear_regression=LinearRegression()
     
     #Fit the model with the X and Y arrays, that we created before.
     linear_regression.fit(X[mask],Y[mask])
     
-    #Print some results.
+    #Print some the Coefficience for every choosen week and the Intercept.
     print(linear_regression.coef_, linear_regression.intercept_)
 
     #Print the score factor is R^2
@@ -314,6 +315,7 @@ def fit_ar_model(avg_sales, weeks):
 #The model uses all avg_sales and fills the array with values which satisfy the condition I have set.
 #WE have 1-D arrays and .dot method create the inner product of vectors.
 #All these values are summarized
+#We start calculate values from the 52th week and after, the same think we did it before.
 def predict_ar_model(avg_sales, orders, coefficient, intercept):
     return np.array([np.sum(np.dot(coefficient, avg_sales.values[(i-weeks)].squeeze())) + intercept  if i >= np.max(weeks) else np.nan for i in range(len(avg_sales))])
 
@@ -515,7 +517,7 @@ f, ax = plt.subplots(figsize=(12,9))
 sns.heatmap(corrmat,vmax=1, square=True, annot=True ); 
 
 
-corr['shifted_sales'].sort_values(ascending=False)
+corrmat['shifted_sales'].sort_values(ascending=False)
 #________________________________________________________________________________________________________________________________________________
 
 
@@ -523,34 +525,51 @@ corr['shifted_sales'].sort_values(ascending=False)
 
 
 #
-#_________________________________Re-write the algorithm using these info from the extra_analysis_________________________________
+#_________________________________Forecast Model including the extra_analysis data_________________________________
 #
-def fit_ar_model_ext(avg_sales, weeks, ext):
+def fit_ar_model_ext(avg_sales, weeks, extra_analysis):
     
+    # We have a window with 52 weeks (one year). For each iterative process we move this window and keep the sales prices for these numbers
+    # We start filling the array from i = 52 (Max week in "weeks" array)  from the 52nd week and we reach up to 0, holding all these values. Then we increase i = i + 1 and we start to keep sales from
+    # Week 53th to 1. Continue until all the weeks of the data set are over. All these values ​​are the independent values ​​of our model.
     X=np.array([ avg_sales.values[(i-weeks)].squeeze() if i >= np.max(weeks) else np.array(len(weeks) * [np.nan]) for i in range(len(avg_sales))])
     
-    X = np.append(X, ext.values, axis=1)
+    #In this step we append the X array with the extra analysis array to combine the sales with the remaining data (Fuel_price, Temperature, Markdown1-5).
+    X = np.append(X, extra_analysis.values, axis=1)
     
+     #We create a mask to test if the are any NaN values, using boolean array. Due to else statement the X array includes NaN cells.
+    # isnan is a function that ask's every value if it is empty or no. It create's a boolean matrix like the example below.
+    #False False False False False False False False False False False False
+    #False False False False False  True  True  True  True  True  True  True
+    #True  True  True  True  True  True  True  True  True  True  True  True
+    #_________________________________ ... _________________________________
     mask = ~np.isnan(X[:,:1]).squeeze()
     
+    #Y vales start from the last numerical week that we have selected in variable "weeks", so it starts from the 52th week. Those are our dependent values.
+    #We have to predict values after 52th week.
     Y= avg_sales.values
     
+    #Set a variable for the Linear Regression Model.
     linear_regression=LinearRegression()
     
+    #Fit our model with independent and dependent values.
     linear_regression.fit(X[mask],Y[mask].ravel())
     
+    #Print the Coefficience for every choosen week, and Intercept.
     print(linear_regression.coef_, linear_regression.intercept_)
-
+    #Print the score factor is R^2
     print('Score factor: %.2f' % linear_regression.score(X[mask],Y[mask]))
     
     return linear_regression.coef_, linear_regression.intercept_
     
-def predict_ar_model_ext(avg_sales, weeks, ext, coef, intercept):
-
+def predict_ar_model_ext(avg_sales, weeks, extra_analysis, coef, intercept):
+	#We start calculate values from the 52th week and after, the same think we did it before.
     X=np.array([ avg_sales.values[(i-weeks)].squeeze() if i >= np.max(weeks) else np.array(len(weeks) * [np.nan]) for i in range(len(avg_sales))])
     
-    X = np.append(X, ext.values, axis=1)
+    #Combine the X array with the remaining data, to
+    X = np.append(X, extra_analysis.values, axis=1)
     
+    #We return in an array the predicted values, from the formula that we have created in below command.
     return np.array( np.dot(X, coef.T) + intercept)
 #________________________________________________________________________________________________________________________________________________
 
@@ -558,33 +577,37 @@ def predict_ar_model_ext(avg_sales, weeks, ext, coef, intercept):
 #
 #___________________In shifted_sales I have one value(the last one which is NaN) I have to replace it_________________________________
 #
-
+#The last value of column shifted_sales is empty and causes problem to our model. So I have to replace it with a number (0).
 info = pd.DataFrame(extra_analysis.dtypes).T.rename(index = {0:'Column Type'})	
 info = info.append(pd.DataFrame(extra_analysis.isnull().sum()).T.rename(index = {0:'null values (nb)'}))
 info
 #Fill all the NaN values with 0.
 extra_analysis.fillna(0, inplace=True)
-   
+#________________________________________________________________________________________________________________________________________________
 
+
+#We have choosen our weeks, so we call the training model, we export the Coefficient and the Intercept and use them as import to the prediction model.
 weeks=np.array([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52])
+#Training Model
 coef, intercept = fit_ar_model_ext(fsw,weeks,extra_analysis)
+#Predicting Model
 pred_ext=pd.DataFrame(index=fsw.index, data=predict_ar_model_ext(fsw, weeks, extra_analysis, coef, intercept))
+#We visualize the original sales values, the predicted values (only from weekly sales) and of course the new predicted values from remaining data.
 plt.figure(figsize=(20,5))
 plt.plot(fsw, 'o')
 plt.plot(pred)
 plt.plot(pred_ext)
 plt.show()
 
-
+#We focus on the original and the predicted values from the remaining data. So we visualize those information.
 plt.figure(figsize=(20,5))
 plt.plot(fsw, 'orange')
 plt.plot(pred_ext,'r')
 plt.show()
 
-
+#It is necessary for us to understand the difference between the predicted values (wihtout remaining data) compared to the new predicted values (with the remaining data).
 diff4=(fsw['Weekly_Sales']-pred[0])/fsw['Weekly_Sales']
 diff_ext4=(fsw['Weekly_Sales']-pred_ext[0])/fsw['Weekly_Sales']
-
 print('AR Residuals: avg %.2f, std %.2f' % (diff4.mean(), diff4.std()))
 print('AR wiht Ext Residuals: avg %.2f, std %.2f' % (diff_ext4.mean(), diff_ext4.std()))
  
@@ -596,9 +619,52 @@ plt.grid()
 plt.show()
 #________________________________________________________________________________________________________________________________________________
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #
 #_________________________________REGRESSION ANALYSIS_________________________________
 #
+
+
 #SCATTER PLOT FUELPRICE AND TEMPERATURE
 colors = np.random.rand(len(fuel_price))
 area = (120 * np.random.rand(len(fuel_price)))**2  # 0 to 15 point radii
