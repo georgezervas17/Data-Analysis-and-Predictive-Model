@@ -667,6 +667,10 @@ pred_ext[-1:]
 from sklearn.metrics import mean_squared_error
 print("Mean squared error: %.2f" % mean_squared_error(Y1[-90:], pred_ext[-90:]))
 
+
+from sklearn.metrics import mean_absolute_error
+print("Mean absolute error: %.2f" % mean_absolute_error(Y1[-90:], pred_ext[-90:]))
+
 #________________________________________________________________________________________________________________________________________________
 
 
