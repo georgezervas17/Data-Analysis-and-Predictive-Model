@@ -633,12 +633,15 @@ weeks=np.array([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,2
 coef, intercept = fit_ar_model_ext(fsw,weeks,extra_analysis)
 pred_ext=pd.DataFrame(index=fsw.index, data=predict_ar_model_ext(fsw, weeks, extra_analysis, coef, intercept))
 
+extra_analysis.fillna('', inplace=True)
+extra_analysis
+
 plt.figure(figsize=(20,5))
 plt.plot(fsw, 'r')
 plt.plot(pred1, 'b')
 
 plt.figure(figsize=(20,5))
-plt.plot(fsw, 'orange')
+plt.plot(extra_analysis, 'orange')
 plt.plot(pred1, 'r')
 plt.plot(pred_ext,'g')
 plt.show()
@@ -649,10 +652,22 @@ plt.show()
 #________________________________________________________________________________________________________________________________________________
 
 
+#
+#_________________________________REAL VALUES VS PREDICTIONS OF LAST WEEK_________________________________
+#
+fsw[-1:]
+
+pred_ext[-1:]
+#________________________________________________________________________________________________________________________________________________
 
 
+#
+#_________________________________MEAN SQUARED ERROR_________________________________
+#
+from sklearn.metrics import mean_squared_error
+print("Mean squared error: %.2f" % mean_squared_error(Y1[-90:], pred_ext[-90:]))
 
-
+#________________________________________________________________________________________________________________________________________________
 
 
 
