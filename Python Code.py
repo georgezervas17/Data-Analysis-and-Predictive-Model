@@ -505,8 +505,11 @@ extra_analysis.describe()
 #variables are the same and if there are some insights. I took the fsw. 
 #I create a new column in extra_analysis array the 'shifted_sales' and in this 
 #column I will run the correlation analysis.
+extra_analysis['shifted_sales'] = fsw.shift(-1)
+extra_analysis
+
 extra_analysis['shifted_sales'] = fs.shift(-1)
-extra_analysis.head()
+extra_analysis
 
 
 #Correlation analysis for all the values in extra_analysis table.
@@ -618,9 +621,32 @@ plt.show()
 
 
 
+#
+#_________________________________EVALUATION_________________________________
+#
 
+weeks=np.array([1,6,52])
+coef, intercept = fit_ar_model(fsw,weeks)
+pred1=pd.DataFrame(index=fsw.index, data=predict_ar_model(fsw, weeks, coef, intercept))
 
+weeks=np.array([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53])
+coef, intercept = fit_ar_model_ext(fsw,weeks,extra_analysis)
+pred_ext=pd.DataFrame(index=fsw.index, data=predict_ar_model_ext(fsw, weeks, extra_analysis, coef, intercept))
 
+plt.figure(figsize=(20,5))
+plt.plot(fsw, 'r')
+plt.plot(pred1, 'b')
+
+plt.figure(figsize=(20,5))
+plt.plot(fsw, 'orange')
+plt.plot(pred1, 'r')
+plt.plot(pred_ext,'g')
+plt.show()
+
+#Score factor: 0.75
+#Score factor with Extra Analysis: 0.91
+
+#________________________________________________________________________________________________________________________________________________
 
 
 
